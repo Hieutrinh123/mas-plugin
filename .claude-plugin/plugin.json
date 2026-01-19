@@ -1,0 +1,9 @@
+{
+  "name": "feature-builder",
+  "description": "Hierarchical multiagent system for building production-ready features through coordinated specialized agents",
+  "version": "1.0.0",
+  "author": {
+    "name": "Jones Trinh"
+  },
+  "license": "MIT"
+}

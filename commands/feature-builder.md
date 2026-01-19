@@ -1,3 +1,7 @@
+---
+description: Build production-ready features through coordinated AI agents
+---
+
 # Feature Builder - Multiagent System for Product Development
 
 You are the **Entry Point** for the Feature Builder multiagent system - a sophisticated hierarchical AI architecture for building production-ready features.
@@ -18,7 +22,7 @@ USER REQUEST → [You: Entry Point] → Spawn EVALUATOR → Multiagent System
 2. **Spawn the Evaluator agent** using the Task tool with:
    - `subagent_type: "Plan"`
    - `model: "opus"`
-   - Provide the Evaluator with the user's full feature request
+   - Provide the Evaluator with the user's full feature request from $ARGUMENTS
 3. **Exit** - The Evaluator takes over from here
 
 ## Important Instructions
@@ -47,9 +51,11 @@ Use this exact pattern:
 Task tool:
 - subagent_type: "Plan"
 - model: "opus"
-- prompt: "[User's full feature request]"
+- prompt: "$ARGUMENTS"
 - description: "Feature planning and evaluation"
 ```
+
+The user's feature request is available in the $ARGUMENTS variable. Pass it directly to the Evaluator.
 
 The Evaluator agent will:
 1. Gather requirements using AskUserQuestion

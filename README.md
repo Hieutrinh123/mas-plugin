@@ -1,6 +1,6 @@
-# Feature Builder - Multiagent System Plugin for Claude Code
+# Feature Builder - Claude Code Plugin
 
-A sophisticated hierarchical AI architecture for building production-ready features through coordinated specialized agents.
+A sophisticated hierarchical multiagent system for building production-ready features through coordinated specialized agents.
 
 ## Overview
 
@@ -35,13 +35,11 @@ Feature Builder implements an **Evaluator-Orchestrator** pattern where strategic
   └──────────┘          └──────────┘          └──────────┘
 ```
 
----
-
 ## Key Features
 
 ### 🎯 Strategic Planning
-- **Requirements Gathering**: Evaluator uses `AskUserQuestion` to clarify ambiguous requirements
-- **Comprehensive Plans**: Detailed plan.md files serve as single source of truth
+- **Requirements Gathering**: Evaluator uses interactive questions to clarify ambiguous requirements
+- **Comprehensive Plans**: Detailed plan files serve as single source of truth
 - **Human-in-the-Loop**: Explicit approval required before implementation begins
 
 ### 🤖 Dynamic Agent Spawning
@@ -63,119 +61,161 @@ Feature Builder implements an **Evaluator-Orchestrator** pattern where strategic
 
 ## Installation
 
-### 1. Copy Plugin to Claude Code Skills Directory
+### Option 1: Install to Plugins Directory (Recommended)
 
 ```bash
-# Copy the plugin to your Claude Code skills directory
-cp -r "mas plugin" ~/.claude/skills/feature-builder
+# Clone or download this repository
+git clone <repository-url> feature-builder-plugin
+
+# Copy to Claude Code plugins directory
+cp -r feature-builder-plugin ~/.claude/plugins/feature-builder
 ```
 
-### 2. Verify Installation
+Restart Claude Code if it's currently running.
+
+### Option 2: Use with --plugin-dir Flag
 
 ```bash
-# Check that the skill is recognized
-ls ~/.claude/skills/feature-builder
+# Load plugin from any location during development
+claude --plugin-dir /path/to/feature-builder-plugin
 ```
 
-You should see:
-```
-skills/
-  feature-builder/
-    feature-builder.md
-    evaluator.md
-    orchestrator.md
-    subagents/
-templates/
-README.md
+### Verify Installation
+
+```bash
+# Start Claude Code
+claude
+
+# Check that the plugin is loaded
+/help
+# You should see /feature-builder in the available commands
 ```
 
 ---
 
-## Usage
+## Quick Start
 
-### Basic Usage
+### Your First Feature
 
-```bash
-# In Claude Code CLI
-/feature-builder Create a user authentication system
+1. **Invoke the plugin**:
+```
+/feature-builder Create a simple contact form
 ```
 
-The system will:
-1. **Gather requirements** via interactive questions
-2. **Create a strategic plan** in `.mas/plans/user_authentication_plan.md`
-3. **Wait for your approval** (blocking until you say "approved")
-4. **Implement the feature** using dynamically spawned agents
-5. **Review and iterate** until quality standards are met
-6. **Deliver production-ready code**
+2. **Answer clarifying questions**:
+The Evaluator will ask targeted questions to understand your requirements (form fields, validation, backend handling, etc.)
 
-### Example Workflow
+3. **Review the plan**:
+A detailed plan will be created at `.mas/plans/contact_form_plan.md` in your project directory. Review it carefully.
+
+4. **Approve or request changes**:
+```
+# To approve:
+approved
+
+# To request changes:
+Change the email service from SendGrid to Resend
+```
+
+5. **Implementation begins**:
+The Orchestrator will spawn the necessary agents (Backend, Frontend, Testing) and coordinate implementation.
+
+6. **Quality review**:
+The Evaluator reviews all code against 5 criteria and either approves or requests fixes.
+
+7. **Delivery**:
+You receive production-ready code with comprehensive tests!
+
+---
+
+## How It Works
+
+### Phase 1: Requirements Gathering
+The Evaluator (Opus 4.5) uses interactive questions to build a complete understanding of what you want.
+
+### Phase 2: Strategic Planning
+A comprehensive plan is created covering:
+- Functional and non-functional requirements
+- Technical approach with rationale
+- Implementation phases
+- Risk assessment
+- Acceptance criteria
+
+### Phase 3: Human Review (BLOCKING)
+**Nothing is implemented until you approve the plan.** This is your chance to steer the implementation.
+
+### Phase 4: Implementation
+The Orchestrator (Sonnet) spawns specialized agents dynamically:
+- **Backend Agent**: API endpoints, database models, business logic
+- **Frontend Agent**: UI components, styling, state management
+- **Testing Agent**: Unit, integration, and E2E tests
+
+Agents run in parallel where possible, respecting dependencies.
+
+### Phase 5: Quality Evaluation
+The Evaluator reviews completed code against:
+1. ✓ Requirements Compliance
+2. ✓ Code Quality
+3. ✓ Clean Code Standards
+4. ✓ Security Review
+5. ✓ Performance
+
+If issues are found, structured feedback is sent to the Orchestrator, who re-spawns affected agents with fix instructions. Max 3 iterations, then escalates to human.
+
+### Phase 6: Delivery
+Once approved, you receive:
+- Production-ready implementation
+- Comprehensive tests
+- Documentation (plan.md)
+
+---
+
+## Usage Examples
+
+### Frontend-Only Feature
 
 ```
-You: /feature-builder Add a dark mode toggle to settings
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PHASE 1: REQUIREMENTS GATHERING
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Evaluator: I need a few clarifications.
-
-┌─────────────────────────────────────────────────────────────────┐
-│ AskUserQuestion: Persistence                                    │
-├─────────────────────────────────────────────────────────────────┤
-│ Should the dark mode preference persist across sessions?        │
-│                                                                 │
-│ ○ Yes, save to localStorage (Recommended)                       │
-│ ○ Yes, save to user account (requires API)                      │
-│ ○ No, session only                                              │
-└─────────────────────────────────────────────────────────────────┘
-
-You: localStorage
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PHASE 2: STRATEGIC PLANNING
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Evaluator: Creating strategic plan...
-  ✓ Analyzed requirements
-  ✓ Selected technology approach
-  ✓ Identified required agents
-
-  📄 Plan created at: .mas/plans/dark_mode_plan.md
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PHASE 3: HUMAN REVIEW  ⏸️  WAITING FOR APPROVAL
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Evaluator: 📄 Plan ready for review. Please review and respond with:
-           • Feedback to update the plan
-           • "approved" to begin implementation
-
-⏸️ Waiting for approval...
-
-You: approved
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PHASE 4: IMPLEMENTATION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Orchestrator: Spawning agents...
-  └── [Frontend Agent] Spawned ✓
-
-  [Frontend] Creating ThemeContext... ✓
-  [Frontend] Adding toggle component... ✓
-  [Frontend] Implementing localStorage persistence... ✓
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PHASE 5: EVALUATION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Evaluator: Review complete.
-  ✓ Requirements met
-  ✓ Code quality standards followed
-  ✓ No security concerns
-
-  APPROVED ✓ → Feature delivered
+/feature-builder Add a dark mode toggle to settings
 ```
+
+**Result**: Only Frontend Agent spawned, delivers theme context + toggle component + localStorage persistence
+
+### Backend-Only Feature
+
+```
+/feature-builder Create a /api/users/export endpoint that returns CSV
+```
+
+**Result**: Only Backend Agent spawned, delivers API endpoint + CSV generation + authentication
+
+### Full-Stack Feature
+
+```
+/feature-builder Build a user dashboard with activity history
+```
+
+**Result**: All agents spawned, delivers complete feature with backend API + frontend UI + comprehensive tests
+
+---
+
+## Plan Files
+
+Plans are stored in `.mas/plans/` in your project directory (not in the plugin):
+
+```
+your-project/
+  .mas/
+    plans/
+      contact_form_plan.md
+      user_authentication_plan.md
+      dark_mode_plan.md
+```
+
+These files:
+- Serve as documentation of what was built
+- Can be version-controlled with git
+- Show the decision-making process
+- Track implementation progress
 
 ---
 
@@ -183,306 +223,133 @@ Evaluator: Review complete.
 
 ### Agent Roles
 
-#### 1. Evaluator (Opus 4.5)
-**Purpose**: Strategic intelligence and quality assurance
-
-**Responsibilities**:
-- Requirements gathering via `AskUserQuestion`
-- Strategic planning (creates plan.md)
+**Evaluator (Opus 4.5)**
+- Strategic intelligence
+- Requirements gathering
+- Plan creation
+- Quality assurance
 - Human-in-the-loop coordination
-- Code quality review (5 criteria)
-- Final approval
 
-**Model**: `claude-opus-4-5-20251101` (for superior reasoning)
+**Orchestrator (Sonnet)**
+- Task decomposition
+- Dynamic agent spawning
+- Dependency management
+- Progress tracking
+- Feedback handling
 
-#### 2. Orchestrator (Sonnet)
-**Purpose**: Task decomposition and agent coordination
-
-**Responsibilities**:
-- Read approved plan.md
-- Determine which agents to spawn (dynamic)
-- Decompose plan into technical tasks
-- Coordinate execution order (dependency management)
-- Aggregate results
-- Handle Evaluator feedback
-
-**Model**: `claude-sonnet-4-20250514` (for efficient coordination)
-
-#### 3. Backend Agent (Sonnet)
-**Purpose**: Server-side implementation
-
-**Scope**:
+**Backend Agent (Sonnet)**
 - API endpoints
-- Database models and migrations
+- Database models/migrations
 - Business logic
 - Authentication/authorization
 - Server-side validation
 
-**Model**: `claude-sonnet-4-20250514`
-
-#### 4. Frontend Agent (Sonnet)
-**Purpose**: Client-side implementation
-
-**Scope**:
+**Frontend Agent (Sonnet)**
 - UI components
-- Styling and responsive design
+- Styling & responsive design
 - State management
-- API integration (client-side)
+- Forms & client validation
 - Accessibility
 
-**Model**: `claude-sonnet-4-20250514`
-
-#### 5. Testing Agent (Sonnet)
-**Purpose**: Quality assurance
-
-**Scope**:
-- Unit tests
-- Integration tests
-- E2E tests
-- Coverage reports
-
-**Model**: `claude-sonnet-4-20250514`
+**Testing Agent (Sonnet)**
+- Unit tests (70%)
+- Integration tests (20%)
+- E2E tests (10%)
+- Coverage reporting
 
 ---
 
-## Plan File Structure
+## Quality Criteria
 
-Plans are stored in `.mas/plans/{feature_name}_plan.md` and serve as the single source of truth.
+All code is evaluated against:
 
-### Key Sections
-
-```markdown
-# Feature Plan: [Name]
-
-## Status: PENDING_REVIEW | APPROVED | IN_PROGRESS | COMPLETED
-
-## Requirements
-- Functional requirements
-- Non-functional requirements (performance, security, accessibility)
-
-## Technical Approach
-- Architecture decisions with rationale
-- Technology stack
-
-## Implementation Plan
-- Phase 1: [Tasks]
-- Phase 2: [Tasks]
-- Phase N: [Tasks]
-
-## Agents Required
-- Backend Agent: Yes/No (with reason)
-- Frontend Agent: Yes/No (with reason)
-- Testing Agent: Yes/No (with reason)
-
-## Acceptance Criteria
-1. [Testable criterion]
-2. [Testable criterion]
-
-## Risk Assessment
-| Risk | Likelihood | Impact | Mitigation |
-
-## Dependencies
-- External dependencies
-- Internal dependencies
-```
-
-### Plan Approval Flow
-
-```
-1. Evaluator creates plan.md → Status: PENDING_REVIEW
-2. Human reviews plan
-   • Option A: Provide feedback → Evaluator updates → Human reviews again
-   • Option B: Say "approved" → Status changes to APPROVED
-3. Orchestrator reads approved plan
-4. Implementation begins → Status: IN_PROGRESS
-5. Evaluator reviews completed work → Status: COMPLETED (if approved)
-```
-
----
-
-## Quality Evaluation Criteria
-
-The Evaluator reviews all code against 5 criteria:
-
-### 1. Requirements Compliance ✓
+### 1. Requirements Compliance
 - All functional requirements implemented
 - All acceptance criteria met
-- No features skipped or partially implemented
+- No features skipped
 
-### 2. Code Quality ✓
+### 2. Code Quality
 - Readable, self-documenting code
-- Small, focused functions (< 50 lines)
-- DRY principle (no unnecessary duplication)
+- Small, focused functions
+- DRY principle followed
 - Appropriate error handling
 
-### 3. Clean Code Standards ✓
-- Descriptive, consistent naming
-- Logical file organization
-- SOLID principles (especially Single Responsibility)
-- Comments only where code isn't self-explanatory
+### 3. Clean Code Standards
+- Descriptive naming
+- Logical organization
+- SOLID principles
+- Comments only where needed
 
-### 4. Security Review ✓
-- Input validation on all endpoints
+### 4. Security Review
+- Input validation
 - Password hashing (bcrypt/argon2)
-- Parameterized SQL queries (no injection vulnerabilities)
+- Parameterized queries (no SQL injection)
 - No hardcoded secrets
 - XSS prevention
-- Authentication/authorization checks
+- OWASP Top 10 compliance
 
-### 5. Performance ✓
+### 5. Performance
 - Efficient algorithms
-- Optimized database queries (no N+1 problems)
+- Optimized database queries
 - Appropriate caching
 - No unnecessary dependencies
 
 ---
 
-## Feedback Loop
-
-When issues are found during evaluation:
-
-```
-1. Evaluator generates structured feedback report (JSON)
-2. Feedback includes:
-   • Issue ID, type, severity
-   • Affected file and line number
-   • Description of problem
-   • Required fix (specific instructions)
-   • Assigned agent (backend/frontend/testing)
-
-3. Orchestrator receives feedback
-4. Orchestrator re-spawns ONLY affected agents with fix instructions
-5. Agents apply targeted fixes
-6. Orchestrator re-submits for review
-
-7. Repeat until approved (max 3 iterations)
-8. If issues persist after 3 iterations → escalate to human
-```
-
-### Example Feedback Report
-
-```json
-{
-  "status": "revision_needed",
-  "iteration": 1,
-  "issues": [
-    {
-      "id": "SEC-001",
-      "type": "security",
-      "severity": "critical",
-      "file": "src/api/auth/login.ts",
-      "line": 42,
-      "description": "Password not hashed before comparison",
-      "current_code": "if (user.password === inputPassword)",
-      "required_fix": "Use bcrypt.compare() for secure verification",
-      "assigned_agent": "backend"
-    }
-  ]
-}
-```
-
----
-
-## Best Practices
-
-### For Users
-
-1. **Be specific in your initial request**: The more detail, the better the requirements gathering
-2. **Review plans carefully**: This is your chance to steer the implementation
-3. **Ask questions**: If something in the plan isn't clear, ask the Evaluator to explain
-4. **Iterate on plans before approving**: It's much cheaper to change a plan than refactor code
-
-### For Developers Extending the Plugin
-
-1. **Add new specialized agents** by creating files in `subagents/` and updating the Orchestrator's spawning logic
-2. **Customize evaluation criteria** by modifying `evaluator.md`
-3. **Adjust plan templates** in `templates/plan-template.md`
-4. **Add hooks** for custom validation or notifications
-
----
-
 ## Troubleshooting
 
-### Issue: Evaluator keeps asking questions
+### Plugin not found
 
-**Cause**: Requirements are too vague
-**Solution**: Provide more detail in your initial request, or answer the questions to build a complete picture
+```bash
+# Check plugin is in the right location
+ls ~/.claude/plugins/feature-builder/.claude-plugin/plugin.json
 
-### Issue: Plan doesn't match my expectations
+# Or use --plugin-dir flag
+claude --plugin-dir /path/to/feature-builder-plugin
+```
 
-**Cause**: Evaluator made assumptions based on incomplete information
-**Solution**: Provide feedback like "Change X to Y" and the Evaluator will update the plan
+### /feature-builder command not showing
 
-### Issue: Implementation failed after 3 iterations
+Restart Claude Code after installing the plugin.
 
-**Cause**: Complex issue that agents can't resolve autonomously
-**Solution**: The Evaluator will escalate to you. Review the affected files and provide guidance.
+### Evaluator keeps asking questions
 
-### Issue: Wrong agents spawned
+This means your initial request was too vague. Provide more detail or answer the questions to build a complete picture.
 
-**Cause**: Orchestrator misinterpreted the plan's requirements
-**Solution**: Make the "Agents Required" section of the plan more explicit
+### Plan doesn't match expectations
 
----
+Provide feedback! The Evaluator will update the plan based on your input. Don't approve until you're satisfied.
 
-## Extending the System
+### Implementation failed after 3 iterations
 
-### Adding a New Agent Type
-
-1. **Create agent prompt**: `subagents/devops.md`
-2. **Define scope**: What the agent builds (deployment scripts, CI/CD, infrastructure)
-3. **Update Orchestrator**: Add spawning logic in `orchestrator.md`
-4. **Update plan template**: Add "DevOps Agent: Yes/No" section
-
-Example use cases for new agents:
-- **DevOps Agent**: Docker, Kubernetes, CI/CD pipelines
-- **Security Agent**: Penetration testing, security audits
-- **Documentation Agent**: API docs, user guides, inline comments
-- **Migration Agent**: Database migrations, data transformations
+The Evaluator will escalate to you. Review the affected files and provide guidance or accept the current implementation.
 
 ---
 
 ## File Structure
 
 ```
-mas-plugin/
+feature-builder-plugin/
+├── .claude-plugin/
+│   └── plugin.json              # Plugin manifest
+├── commands/
+│   └── feature-builder.md       # /feature-builder slash command
 ├── skills/
-│   └── feature-builder/
-│       ├── feature-builder.md       # Entry point skill
-│       ├── evaluator.md             # Evaluator agent prompt (Opus)
-│       ├── orchestrator.md          # Orchestrator agent prompt (Sonnet)
-│       └── subagents/
-│           ├── backend.md           # Backend agent prompt
-│           ├── frontend.md          # Frontend agent prompt
-│           └── testing.md           # Testing agent prompt
+│   ├── feature-builder-evaluator/
+│   │   └── SKILL.md             # Evaluator agent
+│   ├── feature-builder-orchestrator/
+│   │   └── SKILL.md             # Orchestrator agent
+│   ├── feature-builder-backend/
+│   │   └── SKILL.md             # Backend specialist
+│   ├── feature-builder-frontend/
+│   │   └── SKILL.md             # Frontend specialist
+│   └── feature-builder-testing/
+│       └── SKILL.md             # Testing specialist
 ├── templates/
-│   └── plan-template.md             # Plan file template
-└── README.md                        # This file
+│   └── plan-template.md         # Plan file template
+├── README.md                    # This file
+└── LICENSE                      # MIT License
 ```
-
----
-
-## Why This Architecture?
-
-### Separation of Concerns
-- **Evaluator**: Strategic thinking, not implementation details
-- **Orchestrator**: Coordination, not code writing
-- **Subagents**: Focused implementation in their domain
-
-### Quality Gates
-Built-in checkpoints prevent poor implementations from reaching production:
-1. Requirements gathering (Phase 1)
-2. Plan approval (Phase 3)
-3. Code review (Phase 5)
-
-### Scalability
-Easy to add new agent types without modifying existing agents.
-
-### Feedback Loops
-Iterative improvement until quality standards are met (with human escalation as safety valve).
-
-### Transparency
-Clear progression through defined phases with human visibility at each stage.
 
 ---
 
@@ -502,9 +369,9 @@ Clear progression through defined phases with human visibility at each stage.
 
 ### Why plan.md as Source of Truth?
 - Human-readable (non-technical stakeholders can review)
-- Version-controllable (git tracks plan changes)
+- Version-controllable (git tracks changes)
 - IDE-friendly (opens in VS Code, renders nicely)
-- Editable (human can modify directly)
+- Editable (humans can modify directly)
 - Persistent (survives session restarts)
 
 ### Why Dynamic Agent Spawning?
@@ -514,48 +381,42 @@ Clear progression through defined phases with human visibility at each stage.
 
 ---
 
-## Examples
+## Best Practices
 
-See [MULTIAGENT_SYSTEM_PLAN.md](MULTIAGENT_SYSTEM_PLAN.md) for detailed example workflows:
-- Full-stack feature (user authentication)
-- Frontend-only task (dark mode toggle)
-- Backend-only task (API endpoint)
+### For Users
 
----
+1. **Be specific in your initial request**: More detail = better requirements gathering
+2. **Review plans carefully**: This is your chance to steer the implementation
+3. **Ask questions**: If something in the plan isn't clear, ask the Evaluator
+4. **Iterate on plans before approving**: Changing a plan is cheaper than refactoring code
 
-## Contributing
+### For Feature Requests
 
-To contribute improvements:
+**Good requests**:
+- "Add user registration with email verification and password reset"
+- "Create a /api/products endpoint with filtering by category and price range"
+- "Build a responsive navigation menu with dropdown support"
 
-1. Test your changes on real feature requests
-2. Ensure agent prompts are clear and unambiguous
-3. Update this README if you add new capabilities
-4. Submit examples of successful feature builds
+**Vague requests** (will need more clarification):
+- "Add user features"
+- "Make it better"
+- "Fix the thing"
 
 ---
 
 ## License
 
-[Specify your license]
-
----
-
-## Support
-
-For issues or questions:
-- GitHub Issues: [Your repo]
-- Documentation: This README
-- Examples: See MULTIAGENT_SYSTEM_PLAN.md
+MIT License - see [LICENSE](LICENSE) file for details
 
 ---
 
 ## Version
 
-**v1.0.0** - Initial release
+**v1.0.0** - Initial plugin release
 
 **Architecture**: Evaluator-Orchestrator Multiagent System
 **Platform**: Claude Code Plugin
-**Models**: Opus 4.5 (Evaluator) + Sonnet 4.5 (Orchestrator & Subagents)
+**Models**: Opus 4.5 (Evaluator) + Sonnet (Orchestrator & Subagents)
 
 ---
 
