@@ -221,37 +221,52 @@ These files:
 
 ## Architecture
 
+### Hybrid Skills + Agents Pattern
+
+Feature Builder uses a **hybrid architecture** to prevent cross-contamination between domains:
+
+**Strategic Layer (Skills)** - Need full context for coordination:
+- **Evaluator** (`skills/`) - Requirements, planning, quality assurance
+- **Orchestrator** (`skills/`) - Task decomposition, agent coordination
+
+**Execution Layer (Agents)** - Isolated contexts for domain-specific work:
+- **Backend** (`agents/`) - API, database, business logic (isolated from frontend knowledge)
+- **Frontend** (`agents/`) - UI, styling, state management (isolated from backend knowledge)
+- **Testing** (`agents/`) - Unit, integration, E2E tests (isolated from implementation)
+
+**Why This Matters**: Agents run in isolated contexts, preventing the Frontend Agent from accidentally accessing backend skill knowledge and vice versa. See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed explanation.
+
 ### Agent Roles
 
-**Evaluator (Opus 4.5)**
+**Evaluator (Opus 4.5)** - Strategic Skill
 - Strategic intelligence
 - Requirements gathering
 - Plan creation
 - Quality assurance
 - Human-in-the-loop coordination
 
-**Orchestrator (Sonnet)**
+**Orchestrator (Sonnet)** - Coordination Skill
 - Task decomposition
-- Dynamic agent spawning
+- Dynamic agent spawning from `agents/` folder
 - Dependency management
 - Progress tracking
 - Feedback handling
 
-**Backend Agent (Sonnet)**
+**Backend Agent (Sonnet)** - Isolated Execution Agent
 - API endpoints
 - Database models/migrations
 - Business logic
 - Authentication/authorization
 - Server-side validation
 
-**Frontend Agent (Sonnet)**
+**Frontend Agent (Sonnet)** - Isolated Execution Agent
 - UI components
 - Styling & responsive design
 - State management
 - Forms & client validation
 - Accessibility
 
-**Testing Agent (Sonnet)**
+**Testing Agent (Sonnet)** - Isolated Execution Agent
 - Unit tests (70%)
 - Integration tests (20%)
 - E2E tests (10%)
@@ -331,24 +346,24 @@ The Evaluator will escalate to you. Review the affected files and provide guidan
 ```
 feature-builder-plugin/
 ├── .claude-plugin/
-│   └── plugin.json              # Plugin manifest
+│   └── plugin.json                    # Plugin manifest
 ├── commands/
-│   └── feature-builder.md       # /feature-builder slash command
-├── skills/
+│   └── feature-builder.md             # /feature-builder slash command
+├── skills/                            # Strategic agents (full context)
 │   ├── feature-builder-evaluator/
-│   │   └── SKILL.md             # Evaluator agent
-│   ├── feature-builder-orchestrator/
-│   │   └── SKILL.md             # Orchestrator agent
-│   ├── feature-builder-backend/
-│   │   └── SKILL.md             # Backend specialist
-│   ├── feature-builder-frontend/
-│   │   └── SKILL.md             # Frontend specialist
-│   └── feature-builder-testing/
-│       └── SKILL.md             # Testing specialist
+│   │   └── SKILL.md                   # Evaluator - strategic planning & QA
+│   └── feature-builder-orchestrator/
+│       └── SKILL.md                   # Orchestrator - coordination
+├── agents/                            # Execution agents (isolated contexts)
+│   ├── backend-developer.md           # Backend implementation only
+│   ├── frontend-developer.md          # Frontend implementation only
+│   └── testing-specialist.md          # Testing implementation only
 ├── templates/
-│   └── plan-template.md         # Plan file template
-├── README.md                    # This file
-└── LICENSE                      # MIT License
+│   └── plan-template.md               # Plan file template
+├── ARCHITECTURE.md                    # Architecture documentation
+├── improvements-plan.md               # Roadmap for enhancements
+├── README.md                          # This file
+└── LICENSE                            # MIT License
 ```
 
 ---

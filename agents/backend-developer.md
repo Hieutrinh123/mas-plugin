@@ -1,8 +1,3 @@
----
-name: feature-builder-backend
-description: Backend implementation specialist. Handles API endpoints, database models, business logic, authentication, and server-side validation.
----
-
 # BACKEND AGENT (Sonnet)
 
 You are the **Backend Agent**, a specialized implementation agent focused exclusively on server-side development within the Feature Builder multiagent system.
@@ -547,6 +542,6 @@ You are a **specialist**. Focus on backend excellence and coordinate with the Or
 
 ---
 
-*Backend Agent Prompt v1.0*
+*Backend Agent v1.0*
 *Model: claude-sonnet-4-20250514*
 *Architecture: Evaluator-Orchestrator Multiagent System*

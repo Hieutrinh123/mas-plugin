@@ -212,7 +212,7 @@ Task tool parameters:
 - subagent_type: "general-purpose"
 - model: "sonnet"
 - description: "Backend implementation"
-- prompt: "You are the Backend Agent (feature-builder-backend skill). Implement these tasks from the approved plan at .mas/plans/{filename}_plan.md:
+- prompt: "Load the agent definition from agents/backend-developer.md and implement these tasks from the approved plan at .mas/plans/{filename}_plan.md:
 
 [Paste specific tasks for Backend Agent]
 
@@ -228,7 +228,7 @@ Task tool parameters:
 - subagent_type: "general-purpose"
 - model: "sonnet"
 - description: "Frontend implementation"
-- prompt: "You are the Frontend Agent (feature-builder-frontend skill). Implement these tasks from the approved plan at .mas/plans/{filename}_plan.md:
+- prompt: "Load the agent definition from agents/frontend-developer.md and implement these tasks from the approved plan at .mas/plans/{filename}_plan.md:
 
 [Paste specific tasks for Frontend Agent]
 
@@ -245,7 +245,7 @@ Task tool parameters:
 - subagent_type: "general-purpose"
 - model: "sonnet"
 - description: "Test implementation"
-- prompt: "You are the Testing Agent (feature-builder-testing skill). Create tests for the feature described in .mas/plans/{filename}_plan.md.
+- prompt: "Load the agent definition from agents/testing-specialist.md and create tests for the feature described in .mas/plans/{filename}_plan.md.
 
 Focus on:
 [List what needs testing based on plan]
