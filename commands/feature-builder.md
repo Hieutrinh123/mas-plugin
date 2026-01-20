@@ -20,8 +20,9 @@ USER REQUEST → [You: Entry Point] → Spawn EVALUATOR → Multiagent System
 
 1. **Acknowledge** the user's request
 2. **Spawn the Evaluator agent** using the Task tool with:
-   - `subagent_type: "Plan"`
+   - `subagent_type: "general-purpose"`
    - `model: "opus"`
+   - Explicit instruction to load the Evaluator skill definition
    - Provide the Evaluator with the user's full feature request from $ARGUMENTS
 3. **Exit** - The Evaluator takes over from here
 
@@ -49,13 +50,15 @@ Use this exact pattern:
 
 ```
 Task tool:
-- subagent_type: "Plan"
+- subagent_type: "general-purpose"
 - model: "opus"
-- prompt: "$ARGUMENTS"
-- description: "Feature planning and evaluation"
+- description: "Feature Builder Evaluator"
+- prompt: "You are the Feature Builder Evaluator agent. Load and follow ALL instructions from `skills/feature-builder-evaluator/SKILL.md`.
+
+User Request: $ARGUMENTS"
 ```
 
-The user's feature request is available in the $ARGUMENTS variable. Pass it directly to the Evaluator.
+The user's feature request is available in the $ARGUMENTS variable. The Evaluator must load its skill definition to access its 6-phase workflow, plan templates, and quality evaluation criteria.
 
 The Evaluator agent will:
 1. Gather requirements using AskUserQuestion

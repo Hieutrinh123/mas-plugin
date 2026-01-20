@@ -152,9 +152,62 @@ Each task should be:
 
 ---
 
-## STEP 3.5: Create Worktree for Isolated Implementation
+## STEP 3.5: Pre-flight Checks and Worktree Setup
 
-Before spawning agents, create a git worktree to isolate the implementation from the main branch.
+Before spawning agents, verify the environment supports git worktree and create an isolated worktree.
+
+### Pre-flight Checks
+
+**Run these checks before attempting to create a worktree:**
+
+```bash
+# Check 1: Verify we're in a git repository
+git rev-parse --git-dir
+
+# Check 2: Verify worktree support (not a bare repo)
+git rev-parse --is-bare-repository
+# Should return "false"
+
+# Check 3: Verify not in a shallow clone (worktrees may fail)
+git rev-parse --is-shallow-repository
+# Should return "false"
+
+# Check 4: Ensure .mas directory exists
+mkdir -p .mas/worktrees .mas/plans
+```
+
+**If any check fails:**
+
+| Check | Failure | Recovery |
+|-------|---------|----------|
+| Not a git repo | `fatal: not a git repository` | Ask user to initialize: `git init` |
+| Bare repository | Returns "true" | Cannot use worktrees in bare repos - notify Evaluator |
+| Shallow clone | Returns "true" | Run `git fetch --unshallow` to convert to full clone |
+
+**Example Pre-flight Script:**
+
+```bash
+# Run all pre-flight checks
+echo "Running pre-flight checks..."
+
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    echo "ERROR: Not a git repository. Please run 'git init' first."
+    exit 1
+fi
+
+if [ "$(git rev-parse --is-bare-repository)" = "true" ]; then
+    echo "ERROR: Cannot use worktrees in a bare repository."
+    exit 1
+fi
+
+if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
+    echo "WARNING: Shallow clone detected. Running git fetch --unshallow..."
+    git fetch --unshallow
+fi
+
+mkdir -p .mas/worktrees .mas/plans
+echo "Pre-flight checks passed. Ready to create worktree."
+```
 
 ### Worktree Setup
 
