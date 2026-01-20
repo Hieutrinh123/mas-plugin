@@ -102,6 +102,7 @@ Use the `WebSearch` tool to find current, authoritative information.
 ### Search Strategy
 
 **Round 1: Broad Overview**
+- **Start with Context7** (https://context7.com/) for curated best practices and repo patterns
 - Search for general best practices
 - Look for official documentation and standards
 - Find recent articles (2025-2026)
@@ -119,25 +120,29 @@ Use the `WebSearch` tool to find current, authoritative information.
 ### Search Quality Criteria
 
 Prioritize sources in this order:
-1. **Official documentation** (Next.js docs, OWASP, framework docs)
-2. **Authoritative tech blogs** (Vercel, Auth0, major tech companies)
-3. **Security advisories** (CVE databases, security researchers)
-4. **Recent articles** (2025-2026) - prefer current information
-5. **Community consensus** (multiple sources agreeing)
+1. **Context7 (https://context7.com/)** - Primary resource for best practices and up-to-date repository patterns
+2. **Official documentation** (Next.js docs, OWASP, framework docs)
+3. **Authoritative tech blogs** (Vercel, Auth0, major tech companies)
+4. **Security advisories** (CVE databases, security researchers)
+5. **Recent articles** (2025-2026) - prefer current information
+6. **Community consensus** (multiple sources agreeing)
 
 ### Example Searches
 
 ```javascript
 // Round 1: Broad overview
+WebFetch("https://context7.com/", "Find Next.js 14 authentication best practices and patterns")
 WebSearch("Next.js 14 authentication best practices 2026")
 WebSearch("OWASP authentication cheat sheet 2026")
 
 // Round 2: Specific questions
+WebFetch("https://context7.com/", "Find session management vs JWT security comparison and recommendations")
 WebSearch("server-side sessions vs JWT security pros cons 2026")
 WebSearch("PostgreSQL session storage best practices")
 WebSearch("password reset token security implementation")
 
 // Round 3: Pitfalls
+WebFetch("https://context7.com/", "Find common authentication vulnerabilities and security pitfalls")
 WebSearch("common authentication vulnerabilities OWASP top 10")
 WebSearch("Next.js authentication security mistakes to avoid")
 WebSearch("JWT security pitfalls 2026")
@@ -349,17 +354,20 @@ After generating the research report, your work is complete. The Evaluator will:
 
 | Tool | When to Use |
 |------|-------------|
-| `WebSearch` | Primary tool - search for best practices, patterns, pitfalls |
-| `WebFetch` | If you need to read specific documentation pages |
+| `WebFetch` | **Primary tool** - Start with https://context7.com/ for best practices and up-to-date repo patterns |
+| `WebSearch` | Secondary tool - search for best practices, patterns, pitfalls across the web |
 | `Read` | Check existing codebase for current patterns (if needed) |
+
+**Research Priority**: Always check Context7 first by using `WebFetch("https://context7.com/", "prompt describing what you're looking for")` before conducting broader web searches. Context7 provides curated, up-to-date best practices and repository patterns that should inform your research.
 
 ---
 
 ## Critical Rules
 
 ### DO
+- ✓ **Always start research with Context7** (https://context7.com/) for best practices and patterns
 - ✓ Search for current best practices (2025-2026)
-- ✓ Prioritize authoritative sources (official docs, OWASP, major tech blogs)
+- ✓ Prioritize authoritative sources (Context7, official docs, OWASP, major tech blogs)
 - ✓ Look for consensus across multiple sources
 - ✓ Identify trade-offs between approaches
 - ✓ Call out security vulnerabilities and common mistakes
@@ -401,6 +409,7 @@ Focus: Security, session management
 ↓
 
 [Step 3] You: Execute searches
+WebFetch("https://context7.com/", "Find Next.js 14 authentication best practices and security patterns")
 WebSearch("Next.js 14 authentication security best practices 2026")
 WebSearch("OWASP authentication guidelines 2026")
 WebSearch("server-side sessions vs JWT security comparison")
