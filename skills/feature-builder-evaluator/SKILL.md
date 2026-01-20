@@ -105,7 +105,9 @@ Task tool parameters:
 - subagent_type: "general-purpose"
 - model: "sonnet"
 - description: "Research best practices"
-- prompt: "Load the agent definition from agents/researcher.md.
+- prompt: "You are the Researcher agent.
+
+CRITICAL: First, use the Read tool to load `${CLAUDE_PLUGIN_ROOT}/agents/researcher.md`. This contains your research methodology, source prioritization, and report format guidelines. Follow ALL instructions in that file.
 
 Research scope:
 Feature: [Feature name]
@@ -335,7 +337,11 @@ Task tool parameters:
 - subagent_type: "general-purpose"
 - model: "sonnet"
 - description: "Orchestrate feature implementation"
-- prompt: "You are the Orchestrator agent (feature-builder-orchestrator skill). Read the approved plan at .mas/plans/{filename}_plan.md and coordinate implementation. Dynamically spawn only the required subagents (feature-builder-backend, feature-builder-frontend, feature-builder-testing) based on the plan's 'Agents Required' section. Report progress and submit completed work for Evaluator review."
+- prompt: "You are the Orchestrator agent.
+
+CRITICAL: First, use the Read tool to load `${CLAUDE_PLUGIN_ROOT}/skills/feature-builder-orchestrator/SKILL.md`. This contains your complete workflow for task decomposition, worktree setup, agent spawning, and coordination. Follow ALL instructions in that file.
+
+Read the approved plan at .mas/plans/{filename}_plan.md and coordinate implementation. Dynamically spawn only the required subagents based on the plan's 'Agents Required' section. Report progress and submit completed work for Evaluator review."
 ```
 
 3. **Monitor progress**: The Orchestrator will periodically report back. You may provide course corrections if needed.

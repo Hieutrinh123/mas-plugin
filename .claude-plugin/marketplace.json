@@ -1,0 +1,13 @@
+{
+  "name": "mas-plugins",
+  "owner": {
+    "name": "Jones Trinh"
+  },
+  "plugins": [
+    {
+      "name": "feature-builder",
+      "source": ".",
+      "description": "Hierarchical multiagent system for building production-ready features through coordinated specialized agents"
+    }
+  ]
+}

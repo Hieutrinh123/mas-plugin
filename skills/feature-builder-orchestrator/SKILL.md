@@ -330,9 +330,11 @@ Task tool parameters:
 - subagent_type: "general-purpose"
 - model: "sonnet"
 - description: "Backend implementation"
-- prompt: "You are working in a git worktree at .mas/worktrees/{feature_name}. All file paths are relative to the worktree root.
+- prompt: "You are the Backend Developer agent working in a git worktree at .mas/worktrees/{feature_name}. All file paths are relative to the worktree root.
 
-Load the agent definition from agents/backend-developer.md and implement these tasks from the approved plan at .mas/plans/{filename}_plan.md:
+CRITICAL: First, use the Read tool to load `${CLAUDE_PLUGIN_ROOT}/agents/backend-developer.md`. This contains your complete guidelines for API design, database patterns, security practices, and coding standards. Follow ALL instructions in that file.
+
+Then implement these tasks from the approved plan at .mas/plans/{filename}_plan.md:
 
 [Paste specific tasks for Backend Agent]
 
@@ -348,9 +350,11 @@ Task tool parameters:
 - subagent_type: "general-purpose"
 - model: "sonnet"
 - description: "Frontend implementation"
-- prompt: "You are working in a git worktree at .mas/worktrees/{feature_name}. All file paths are relative to the worktree root.
+- prompt: "You are the Frontend Developer agent working in a git worktree at .mas/worktrees/{feature_name}. All file paths are relative to the worktree root.
 
-Load the agent definition from agents/frontend-developer.md and implement these tasks from the approved plan at .mas/plans/{filename}_plan.md:
+CRITICAL: First, use the Read tool to load `${CLAUDE_PLUGIN_ROOT}/agents/frontend-developer.md`. This contains your complete guidelines for UI components, state management, accessibility, and styling. Follow ALL instructions in that file.
+
+Then implement these tasks from the approved plan at .mas/plans/{filename}_plan.md:
 
 [Paste specific tasks for Frontend Agent]
 
@@ -367,9 +371,11 @@ Task tool parameters:
 - subagent_type: "general-purpose"
 - model: "sonnet"
 - description: "Test implementation"
-- prompt: "You are working in a git worktree at .mas/worktrees/{feature_name}. All file paths are relative to the worktree root.
+- prompt: "You are the Testing Specialist agent working in a git worktree at .mas/worktrees/{feature_name}. All file paths are relative to the worktree root.
 
-Load the agent definition from agents/testing-specialist.md and create tests for the feature described in .mas/plans/{filename}_plan.md.
+CRITICAL: First, use the Read tool to load `${CLAUDE_PLUGIN_ROOT}/agents/testing-specialist.md`. This contains your complete guidelines for test pyramid, coverage targets, and testing patterns. Follow ALL instructions in that file.
+
+Then create tests for the feature described in .mas/plans/{filename}_plan.md.
 
 Focus on:
 [List what needs testing based on plan]

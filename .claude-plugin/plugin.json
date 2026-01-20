@@ -5,5 +5,8 @@
   "author": {
     "name": "Jones Trinh"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "keywords": ["multiagent", "feature-builder", "orchestrator", "evaluator"],
+  "commands": "./commands/",
+  "skills": "./skills/"
 }

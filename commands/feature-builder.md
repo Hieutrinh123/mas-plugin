@@ -53,12 +53,14 @@ Task tool:
 - subagent_type: "general-purpose"
 - model: "opus"
 - description: "Feature Builder Evaluator"
-- prompt: "You are the Feature Builder Evaluator agent. Load and follow ALL instructions from `skills/feature-builder-evaluator/SKILL.md`.
+- prompt: "You are the Feature Builder Evaluator agent.
+
+CRITICAL: First, use the Read tool to load and read the file at `${CLAUDE_PLUGIN_ROOT}/skills/feature-builder-evaluator/SKILL.md`. This file contains your complete workflow, responsibilities, plan templates, and quality evaluation criteria. Follow ALL instructions in that file.
 
 User Request: $ARGUMENTS"
 ```
 
-The user's feature request is available in the $ARGUMENTS variable. The Evaluator must load its skill definition to access its 6-phase workflow, plan templates, and quality evaluation criteria.
+The user's feature request is available in the $ARGUMENTS variable. The `${CLAUDE_PLUGIN_ROOT}` variable resolves to the plugin's installation directory, ensuring the skill file is found regardless of where the user runs the command.
 
 The Evaluator agent will:
 1. Gather requirements using AskUserQuestion
