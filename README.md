@@ -13,18 +13,21 @@ Feature Builder implements an **Evaluator-Orchestrator** pattern where strategic
 └──────────────────────────────┬──────────────────────────────────┘
                                ▼
                     ┌──────────────────────┐
-                    │  EVALUATOR (Opus)    │──► Requirements Gathering
-                    │  • AskUserQuestion   │──► Strategic Planning
-                    │  • Creates plan.md   │──► Quality Assurance
+                    │  EVALUATOR (Opus)    │──► Phase 1: Requirements Gathering
+                    │  • AskUserQuestion   │──► Phase 2: Strategic Planning
+                    │  • Spawns Research   │    (Optional: Research Agent)
+                    │  • Creates plan.md   │    (Uses plan templates)
                     └──────────┬───────────┘
                                ▼
                     ┌──────────────────────┐
-                    │   🧑 HUMAN REVIEW    │──► Approves/Modifies Plan
+                    │   🧑 HUMAN REVIEW    │──► Phase 3: Plan Approval (BLOCKING)
                     └──────────┬───────────┘
                                ▼
                     ┌──────────────────────┐
-                    │ ORCHESTRATOR (Sonnet)│──► Task Decomposition
-                    │  • Spawns agents     │──► Coordination
+                    │ ORCHESTRATOR (Sonnet)│──► Phase 4: Implementation
+                    │  • Creates worktree  │    in .mas/worktrees/{name}
+                    │  • Spawns agents     │──► Task Decomposition
+                    │  • Progress tracking │──► Real-time updates
                     └──────────┬───────────┘
                                ▼
         ┌──────────────────────┼──────────────────────┐
@@ -32,7 +35,34 @@ Feature Builder implements an **Evaluator-Orchestrator** pattern where strategic
   ┌──────────┐          ┌──────────┐          ┌──────────┐
   │ Backend  │          │ Frontend │          │ Testing  │
   │  Agent   │          │  Agent   │          │  Agent   │
-  └──────────┘          └──────────┘          └──────────┘
+  │(worktree)│          │(worktree)│          │(worktree)│
+  └─────┬────┘          └─────┬────┘          └─────┬────┘
+        └──────────────────────┼──────────────────────┘
+                               ▼
+                    ┌──────────────────────┐
+                    │  EVALUATOR (Opus)    │──► Phase 5: Quality Review
+                    │  • Reviews worktree  │    (in worktree, not main)
+                    │  • 5 quality checks  │──► Max 5 fix iterations
+                    └──────────┬───────────┘
+                               │
+                      ┌────────┴────────┐
+                      ▼                 ▼
+               ┌──────────┐      ┌──────────┐
+               │ APPROVED │      │ ISSUES   │──► Back to Orchestrator
+               └─────┬────┘      │  FOUND   │    (spawns agents for fixes)
+                     │           └──────────┘
+                     ▼
+          ┌──────────────────────┐
+          │ ORCHESTRATOR (Sonnet)│──► Phase 6: Merge to Main
+          │  • Merges worktree   │    (only if approved)
+          │  • Cleans up         │──► git merge feature/{name}
+          └──────────┬───────────┘
+                     ▼
+          ┌──────────────────────┐
+          │  EVALUATOR (Opus)    │──► Phase 7: Delivery
+          │  • Delivery summary  │──► Production-ready code
+          │  • Updates plan.md   │    on main branch
+          └──────────────────────┘
 ```
 
 ## Key Features
@@ -134,24 +164,43 @@ approved
 Change the email service from SendGrid to Resend
 ```
 
-5. **Implementation begins**:
-The Orchestrator creates a git worktree and spawns necessary agents (Backend, Frontend, Testing). You'll see real-time progress:
+5. **Worktree created**:
+The Orchestrator creates an isolated git worktree at `.mas/worktrees/{feature_name}` on a new branch `feature/{feature_name}`.
+
+6. **Implementation begins**:
+Agents work in the worktree. You'll see real-time progress:
 ```
-🔧 IMPLEMENTATION IN PROGRESS
+🔧 IMPLEMENTATION IN PROGRESS (in worktree)
 
 Backend Agent:    [████████░░] 80% (4/5 tasks)
+  ✓ User model created (src/models/User.ts)
+  ✓ API endpoints (src/api/users.ts)
+  ⏳ Tests (in progress)
+
 Frontend Agent:   [██████████] 100% (3/3 tasks)
 Testing Agent:    [████░░░░░░] 40% (2/5 test suites)
+
+Overall: 73% complete
 ```
 
-6. **Quality review**:
-The Evaluator reviews code in the worktree against 5 criteria and either approves or requests fixes (max 5 iterations).
+7. **Quality review in worktree**:
+The Evaluator reviews code **in the worktree** (not main branch) against 5 criteria:
+- Requirements compliance
+- Code quality
+- Clean code standards
+- Security review
+- Performance
 
-7. **Merge to main**:
-On approval, the Orchestrator merges the worktree to main branch.
+If issues found, Orchestrator re-spawns affected agents to fix them (max 5 iterations).
 
-8. **Delivery**:
-You receive production-ready code with comprehensive tests!
+8. **Merge to main**:
+**Only after Evaluator approval**, the Orchestrator merges the worktree to main:
+```bash
+git merge feature/{feature_name}
+```
+
+9. **Delivery**:
+You receive production-ready code on main branch with comprehensive tests! The worktree is cleaned up automatically.
 
 ### Partial Workflows
 
@@ -174,56 +223,348 @@ You receive production-ready code with comprehensive tests!
 
 ## How It Works
 
+### Complete Workflow (7 Phases)
+
+```
+Phase 1: Requirements → Phase 2: Planning → Phase 3: Approval (HUMAN)
+     ↓
+Phase 4: Implementation (Worktree) → Phase 5: Quality Review → Fix Loop (max 5x)
+     ↓
+Phase 6: Merge to Main → Phase 7: Delivery
+```
+
 ### Phase 1: Requirements Gathering
-The Evaluator (Opus 4.5) uses interactive questions to build a complete understanding of what you want.
+**Agent**: Evaluator (Opus 4.5)
+
+The Evaluator uses `AskUserQuestion` tool to build a complete understanding:
+- Functional requirements (what should it do?)
+- Technical preferences (stack, architecture)
+- Security requirements
+- Performance expectations
+- Integration points
+
+**Example Questions**:
+- "Which authentication method should be supported?" (Email/Password, OAuth, Magic Link)
+- "Should this be mobile-first or desktop-first?"
+- "What are the expected load requirements?"
+
+**Output**: Complete requirements understanding
+
+---
 
 ### Phase 2: Strategic Planning
-The Evaluator creates a comprehensive plan covering:
-- Functional and non-functional requirements
-- Technical approach with rationale
-- Implementation phases
-- Risk assessment
-- Acceptance criteria
+**Agent**: Evaluator (Opus 4.5)
+**Optional**: Research Agent (Sonnet) - for complex/security-critical features
 
-**Optional Research**: For complex features, the Evaluator may spawn a Research agent to discover industry best practices, common pitfalls, and proven patterns (using WebSearch for current 2026 standards).
+**Planning Process**:
+1. **Optional Research**: For complex features (auth, payments, etc.), Evaluator spawns Research agent
+   - Research agent uses WebSearch for current 2026 best practices
+   - Discovers common pitfalls, security standards (OWASP), proven patterns
+   - Returns structured research report with recommendations
 
-**Plan Templates**: For common patterns (CRUD APIs, Authentication, Dashboards), the Evaluator uses specialized templates that provide better structure and completeness.
+2. **Select Template**: Evaluator identifies feature type:
+   - CRUD API → `crud-api-plan-template.md`
+   - Authentication → `auth-plan-template.md`
+   - Dashboard → `dashboard-plan-template.md`
+   - Other → `plan-template.md`
+
+3. **Create Plan**: Writes comprehensive plan to `.mas/plans/{feature_name}_plan.md`:
+   - Functional and non-functional requirements
+   - Technical approach with rationale (informed by research if applicable)
+   - Implementation phases (broken into specific tasks)
+   - Risk assessment with mitigations
+   - Acceptance criteria (testable conditions)
+   - Which agents are needed (Backend, Frontend, Testing)
+
+**Output**: `.mas/plans/{feature_name}_plan.md` (status: PENDING_REVIEW)
+
+---
 
 ### Phase 3: Human Review (BLOCKING)
-**Nothing is implemented until you approve the plan.** This is your chance to steer the implementation.
+**Agent**: Evaluator (Opus 4.5)
+**Gate**: Human approval required
+
+The Evaluator presents the plan and **blocks** waiting for human response:
+
+```
+📄 Plan ready for your review at: .mas/plans/user_auth_plan.md
+
+Please review and respond with:
+• Feedback or questions (I'll update the plan)
+• "approved" or "proceed" to begin implementation
+• "reject" to discard and restart
+
+⏸️ Waiting for human approval...
+```
+
+**Human Options**:
+- Provide feedback → Evaluator updates plan → Review again
+- Approve → Proceed to Phase 4
+- Reject → Start over
+
+**Output**: Approved plan (status: APPROVED)
+
+---
 
 ### Phase 4: Implementation (Worktree Isolation)
-The Orchestrator:
-1. Creates a git worktree: `.mas/worktrees/{feature_name}`
-2. Spawns specialized agents dynamically in the worktree:
-   - **Backend Agent**: API endpoints, database models, business logic
-   - **Frontend Agent**: UI components, styling, state management
-   - **Testing Agent**: Unit, integration, and E2E tests
-3. Provides real-time progress updates with visual progress bars
-4. Agents run in parallel where possible, respecting dependencies
+**Agent**: Orchestrator (Sonnet)
+**Subagents**: Backend, Frontend, Testing (Sonnet)
 
-**Benefit**: All implementation happens in isolation. Your main branch stays clean.
+**Step 1**: Create isolated worktree
+```bash
+git worktree add .mas/worktrees/{feature_name} -b feature/{feature_name}
+cd .mas/worktrees/{feature_name}
+```
+
+**Step 2**: Orchestrator analyzes plan and spawns only needed agents
+- Read plan's "Agents Required" section
+- Decompose tasks per agent
+- Identify dependencies
+
+**Step 3**: Spawn agents in parallel (where no dependencies)
+```
+Backend Agent spawned: implementing in worktree
+Frontend Agent spawned: implementing in worktree
+Testing Agent spawned: implementing in worktree
+```
+
+**Step 4**: Real-time progress tracking
+```
+🔧 IMPLEMENTATION IN PROGRESS (in worktree)
+
+Backend Agent:    [████████░░] 80% (4/5 tasks completed)
+  ✓ User model created (src/models/User.ts)
+  ✓ Session middleware (src/middleware/session.ts)
+  ✓ Register endpoint (src/api/auth/register.ts)
+  ✓ Login endpoint (src/api/auth/login.ts)
+  ⏳ Password reset endpoint (in progress)
+
+Frontend Agent:   [██████████] 100% (3/3 tasks completed)
+  ✓ LoginForm component (src/components/LoginForm.tsx)
+  ✓ RegisterForm component (src/components/RegisterForm.tsx)
+  ✓ Auth context (src/contexts/AuthContext.tsx)
+
+Testing Agent:    [████░░░░░░] 40% (2/5 test suites)
+  ✓ Unit tests for auth utilities
+  ✓ Integration tests for login
+  ⏳ Integration tests for registration (in progress)
+
+Overall Progress: [███████░░░] 73% (9/13 total tasks)
+```
+
+**Step 5**: Submit to Evaluator when all agents complete
+```
+✅ IMPLEMENTATION COMPLETE
+
+Worktree: .mas/worktrees/user_auth
+Branch: feature/user_auth
+Files created: 8 files
+Files modified: 2 files
+
+Ready for quality review.
+```
+
+**Output**: Completed implementation in worktree (main branch untouched)
+
+---
 
 ### Phase 5: Quality Evaluation (In Worktree)
-The Evaluator reviews code **in the worktree** (not main branch) against:
-1. ✓ Requirements Compliance
-2. ✓ Code Quality
-3. ✓ Clean Code Standards
-4. ✓ Security Review
-5. ✓ Performance
+**Agent**: Evaluator (Opus 4.5)
+**Location**: Reviews code in `.mas/worktrees/{feature_name}` (NOT main branch)
 
-If issues are found, structured feedback is sent to the Orchestrator, who re-spawns affected agents with fix instructions. Max 5 iterations, then escalates to human.
+**Evaluation Process**:
+1. **Change to worktree**: `cd .mas/worktrees/{feature_name}`
+
+2. **Review against 5 criteria**:
+   - ✓ **Requirements Compliance**: All requirements implemented?
+   - ✓ **Code Quality**: Readable, DRY, appropriate abstractions?
+   - ✓ **Clean Code**: Good naming, file organization, SOLID principles?
+   - ✓ **Security**: Input validation, password hashing, SQL injection prevention, OWASP compliance?
+   - ✓ **Performance**: Efficient algorithms, optimized queries, no N+1 problems?
+
+3. **Outcome A - APPROVED**:
+```markdown
+✓ EVALUATION COMPLETE - APPROVED
+
+Requirements Compliance: ✓ PASS
+Code Quality: ✓ PASS
+Clean Code Standards: ✓ PASS
+Security Review: ✓ PASS
+Performance: ✓ PASS
+
+🔀 ORCHESTRATOR: Proceed with merge to main branch
+```
+→ Go to Phase 6
+
+4. **Outcome B - REVISION NEEDED**:
+```json
+{
+  "status": "revision_needed",
+  "iteration": 1,
+  "issues": [
+    {
+      "id": "SEC-001",
+      "type": "security",
+      "severity": "critical",
+      "file": "src/api/auth/login.ts",
+      "line": 42,
+      "description": "Password not hashed before comparison",
+      "required_fix": "Use bcrypt.compare() for secure verification",
+      "assigned_agent": "backend"
+    }
+  ]
+}
+```
+→ Orchestrator re-spawns Backend Agent with fix instructions
+→ Backend Agent fixes in worktree
+→ Submit for re-review
+→ Repeat (max 5 iterations)
+
+If issues persist after 5 iterations → Escalate to human
+
+**Output**: Either approval or structured feedback
+
+---
 
 ### Phase 6: Merge to Main
-**Only on Evaluator approval**, the Orchestrator merges the worktree to main branch and cleans up the worktree.
+**Agent**: Orchestrator (Sonnet)
+**Trigger**: Evaluator approval only
 
-**Benefit**: Main branch only receives quality-approved code.
+**Merge Process**:
+```bash
+# 1. Return to main repo
+cd /path/to/main/repo
 
-### Phase 6: Delivery
-Once approved, you receive:
-- Production-ready implementation
-- Comprehensive tests
-- Documentation (plan.md)
+# 2. Ensure main is up to date
+git checkout main
+git pull origin main
+
+# 3. Merge feature branch
+git merge feature/{feature_name} --no-ff -m "feat: [Feature name]
+
+[Description]
+
+Plan: .mas/plans/{filename}_plan.md
+Reviewed and approved by Evaluator"
+
+# 4. Cleanup worktree
+git worktree remove .mas/worktrees/{feature_name}
+
+# 5. Delete feature branch (optional)
+git branch -d feature/{feature_name}
+```
+
+**Output**:
+- Feature merged to main branch
+- Worktree cleaned up
+- Main branch now has production-ready code
+
+---
+
+### Phase 7: Delivery
+**Agent**: Evaluator (Opus 4.5)
+
+**Delivery Summary**:
+```markdown
+✅ FEATURE DELIVERED: User Authentication System
+
+Implementation Summary:
+• Files created: 8 files
+  - src/models/User.ts (User model with password hashing)
+  - src/middleware/session.ts (Session management)
+  - src/api/auth/register.ts, login.ts, logout.ts
+  - src/components/LoginForm.tsx, RegisterForm.tsx
+  - src/tests/auth.integration.test.ts
+
+• Files modified: 2 files
+  - package.json (added bcrypt, express-session)
+  - src/app/layout.tsx (added AuthProvider)
+
+• New endpoints: 3 API routes
+  - POST /api/auth/register
+  - POST /api/auth/login
+  - POST /api/auth/logout
+
+Quality Assurance:
+✓ All requirements met (per plan.md)
+✓ Code quality standards passed
+✓ Security review passed (OWASP compliant)
+✓ Tests passing (85% coverage)
+
+The feature is now live on main branch.
+```
+
+**Plan Updated**: Status → COMPLETED
+
+**Output**: Production-ready feature on main branch with full documentation
+
+---
+
+## Git Worktree Workflow
+
+Feature Builder uses git worktrees to isolate implementation from your main branch.
+
+### What Happens
+
+**Before Implementation**:
+```
+your-project/              # Your main working directory
+├── src/                   # Clean, untouched
+├── package.json           # Clean, untouched
+└── .mas/
+    └── plans/
+        └── feature_plan.md
+```
+
+**During Implementation** (Phase 4-5):
+```
+your-project/              # Main directory (unchanged)
+└── .mas/
+    ├── plans/
+    │   └── feature_plan.md (status: IN_PROGRESS)
+    └── worktrees/
+        └── feature_name/  # Isolated worktree
+            ├── src/       # Implementation happens here
+            │   ├── models/User.ts (NEW)
+            │   └── api/users.ts (NEW)
+            └── package.json (MODIFIED)
+```
+
+**Key Points**:
+- Your main branch is **untouched** during implementation
+- All agent work happens in `.mas/worktrees/{feature_name}`
+- Evaluator reviews code in the worktree
+- If implementation fails, just delete the worktree - main is clean
+
+**After Approval** (Phase 6-7):
+```bash
+# Orchestrator merges worktree to main
+git checkout main
+git merge feature/{feature_name}
+
+# Worktree cleaned up automatically
+# .mas/worktrees/{feature_name} removed
+```
+
+**Result**:
+```
+your-project/              # Now has the approved changes
+├── src/
+│   ├── models/User.ts     # Merged from worktree
+│   └── api/users.ts       # Merged from worktree
+├── package.json           # Merged changes
+└── .mas/
+    └── plans/
+        └── feature_plan.md (status: COMPLETED)
+```
+
+### Benefits
+
+✅ **Safe Experimentation**: Try different approaches without risk
+✅ **Protected Main**: Your main branch only gets quality-approved code
+✅ **Easy Rollback**: `git worktree remove` - no trace left
+✅ **Parallel Development**: Multiple features in separate worktrees
+✅ **Clean History**: Failed attempts never appear in git log
 
 ---
 
@@ -401,53 +742,6 @@ Feature Builder uses a **hybrid architecture** to prevent cross-contamination be
 
 ---
 
-## Plan Templates
-
-The Evaluator uses specialized templates for common feature types:
-
-### 1. CRUD API Template (`templates/crud-api-plan-template.md`)
-**Use for**: RESTful resource endpoints (users, products, orders, etc.)
-
-**Includes**:
-- All 5 CRUD operations (Create, Read, Read All, Update, Delete)
-- Pagination, sorting, filtering
-- Input validation
-- Database schema design
-- Error handling patterns
-
----
-
-### 2. Authentication Template (`templates/auth-plan-template.md`)
-**Use for**: User authentication systems
-
-**Includes**:
-- Registration, login, logout flows
-- Password management (hashing, reset, change)
-- Session management (server-side sessions vs JWT)
-- Email verification
-- Rate limiting and account lockout
-- OWASP security best practices
-
----
-
-### 3. Dashboard Template (`templates/dashboard-plan-template.md`)
-**Use for**: Analytics, reporting, or admin dashboards
-
-**Includes**:
-- KPI metrics cards with change indicators
-- Chart/graph specifications
-- Data tables with sorting, filtering, pagination
-- Real-time updates
-- Export functionality
-- Mobile-responsive design
-
----
-
-### 4. Generic Template (`templates/plan-template.md`)
-**Use for**: Features that don't fit above patterns
-
----
-
 ## Quality Criteria
 
 All code is evaluated against:
@@ -509,9 +803,51 @@ This means your initial request was too vague. Provide more detail or answer the
 
 Provide feedback! The Evaluator will update the plan based on your input. Don't approve until you're satisfied.
 
-### Implementation failed after 3 iterations
+### Implementation failed after 5 iterations
 
-The Evaluator will escalate to you. Review the affected files and provide guidance or accept the current implementation.
+The Evaluator will escalate to you. Review the affected files in the worktree (`.mas/worktrees/{feature_name}`) and provide guidance or accept the current implementation.
+
+### Worktree still exists after delivery
+
+If something went wrong, you can manually clean up:
+```bash
+# Remove worktree
+git worktree remove .mas/worktrees/{feature_name} --force
+
+# Delete feature branch
+git branch -D feature/{feature_name}
+```
+
+### Changes not showing on main branch
+
+Check if the worktree merge completed:
+```bash
+# See if feature branch was merged
+git log --oneline --graph -10
+
+# Check worktree status
+git worktree list
+```
+
+If the worktree is still listed, the merge didn't complete. This usually means the Evaluator found issues.
+
+### Want to manually inspect worktree
+
+```bash
+# Navigate to worktree
+cd .mas/worktrees/{feature_name}
+
+# This is a full git working directory
+git status
+git log
+```
+
+### Merge conflicts
+
+If merge conflicts occur, the Orchestrator will report them. You can:
+1. Let the Orchestrator handle them (recommended)
+2. Manually resolve in the worktree and let Orchestrator retry merge
+3. Abandon the worktree and start over
 
 ---
 
@@ -520,24 +856,29 @@ The Evaluator will escalate to you. Review the affected files and provide guidan
 ```
 feature-builder-plugin/
 ├── .claude-plugin/
-│   └── plugin.json                    # Plugin manifest
-├── commands/
-│   └── feature-builder.md             # /feature-builder slash command
-├── skills/                            # Strategic agents (full context)
+│   └── plugin.json                         # Plugin manifest
+├── commands/                               # Entry point commands
+│   ├── feature-builder.md                  # /feature-builder (full workflow)
+│   ├── feature-builder-plan.md             # /feature-builder:plan (plan only)
+│   ├── feature-builder-review.md           # /feature-builder:review (review only)
+│   └── feature-builder-test.md             # /feature-builder:test (test only)
+├── skills/                                 # Strategic agents (full context)
 │   ├── feature-builder-evaluator/
-│   │   └── SKILL.md                   # Evaluator - strategic planning & QA
+│   │   └── SKILL.md                        # Evaluator - planning & QA & research
 │   └── feature-builder-orchestrator/
-│       └── SKILL.md                   # Orchestrator - coordination
-├── agents/                            # Execution agents (isolated contexts)
-│   ├── backend-developer.md           # Backend implementation only
-│   ├── frontend-developer.md          # Frontend implementation only
-│   └── testing-specialist.md          # Testing implementation only
-├── templates/
-│   └── plan-template.md               # Plan file template
-├── ARCHITECTURE.md                    # Architecture documentation
-├── improvements-plan.md               # Roadmap for enhancements
-├── README.md                          # This file
-└── LICENSE                            # MIT License
+│       └── SKILL.md                        # Orchestrator - worktree & coordination
+├── agents/                                 # Execution agents (isolated contexts)
+│   ├── backend-developer.md                # Backend implementation only
+│   ├── frontend-developer.md               # Frontend implementation only
+│   ├── testing-specialist.md               # Testing implementation only
+│   └── researcher.md                       # Research best practices (NEW)
+├── templates/                              # Plan templates
+│   ├── plan-template.md                    # Generic template
+│   ├── crud-api-plan-template.md           # CRUD API template (NEW)
+│   ├── auth-plan-template.md               # Authentication template (NEW)
+│   └── dashboard-plan-template.md          # Dashboard template (NEW)
+├── README.md                               # This file
+└── LICENSE                                 # MIT License
 ```
 
 ---
