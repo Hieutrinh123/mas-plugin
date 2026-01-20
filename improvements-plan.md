@@ -426,11 +426,18 @@ After successful delivery:
 ```bash
 git worktree add .mas/worktrees/{feature_name} -b feature/{feature_name}
 # Implementation happens in isolated worktree
-# On success: merge and cleanup
-# On failure: abandon worktree (no cleanup needed)
+# Evaluator reviews work in worktree (Phase 5 Quality Evaluation)
+# On Evaluator approval: merge to main and cleanup worktree
+# On failure: abandon worktree (no cleanup needed, no main pollution)
 ```
 
-**Benefit**: Risk-free experimentation, cleaner git history
+**Workflow Enhancement**:
+1. Phase 4: Orchestrator spawns worktree and agents work in isolation
+2. Phase 5: Evaluator reviews code in worktree (not main branch)
+3. Phase 6: If quality passes → `git checkout main && git merge feature/{feature_name}`
+4. Cleanup: `git worktree remove .mas/worktrees/{feature_name}`
+
+**Benefit**: Risk-free experimentation, cleaner git history, main branch protected from failed attempts
 
 ---
 

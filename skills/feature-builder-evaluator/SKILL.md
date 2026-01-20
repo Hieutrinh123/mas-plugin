@@ -87,15 +87,92 @@ Stop gathering requirements when you have:
 
 Once requirements are complete, create a **comprehensive strategic plan**.
 
+### Optional: Research Best Practices First
+
+For complex features or critical decisions, consider spawning the Researcher agent to gather industry best practices before creating the plan.
+
+**When to spawn Researcher**:
+- Feature involves security-critical operations (auth, payments, data encryption)
+- Multiple valid implementation approaches exist (need trade-off analysis)
+- Unfamiliar technology stack or rapidly evolving ecosystem
+- Performance is critical and optimization patterns exist
+- Established patterns exist for this feature type (auth, CRUD APIs, etc.)
+
+**How to spawn Researcher**:
+
+```
+Task tool parameters:
+- subagent_type: "general-purpose"
+- model: "sonnet"
+- description: "Research best practices"
+- prompt: "Load the agent definition from agents/researcher.md.
+
+Research scope:
+Feature: [Feature name]
+Technology Stack: [Stack from requirements]
+Critical Concerns: [Security, performance, scalability, etc.]
+Open Questions:
+- [Question 1: e.g., "Sessions vs JWT for auth?"]
+- [Question 2: e.g., "How to implement password reset securely?"]
+- [Question 3: e.g., "Common pitfalls to avoid?"]
+
+Conduct web research and provide a structured research report with:
+1. Consensus best practices from authoritative sources
+2. Trade-offs between approaches
+3. Common pitfalls and vulnerabilities to avoid
+4. Recommended approach with rationale
+5. Sources cited
+
+Focus on current best practices (2026)."
+```
+
+**Using Research Results**:
+- Incorporate recommendations into your plan
+- Reference research sources in architecture decisions
+- Add "must-avoid" pitfalls to risk assessment
+- Use trade-off analysis to justify choices
+
+**Skip Researcher if**:
+- Feature is straightforward (simple CRUD, basic UI)
+- You're already confident in the approach
+- Requirements explicitly specify the implementation method
+
 ### Plan File Location
 
 Write the plan to: `.mas/plans/{feature_name}_plan.md`
 
 Example: `.mas/plans/user_authentication_plan.md`
 
+### Plan Templates
+
+For common feature types, use specialized templates that provide better structure and completeness:
+
+**Available Templates**:
+1. **CRUD API** (`templates/crud-api-plan-template.md`) - RESTful resource endpoints
+   - Use when: Building API for a data resource (users, products, orders, etc.)
+   - Includes: Database schema, all CRUD endpoints, pagination, validation
+
+2. **Authentication System** (`templates/auth-plan-template.md`) - User auth
+   - Use when: Building login, registration, password reset, sessions
+   - Includes: Security best practices, OWASP compliance, session management
+
+3. **Dashboard** (`templates/dashboard-plan-template.md`) - Analytics/reporting UI
+   - Use when: Building data visualization, metrics, charts, tables
+   - Includes: KPI cards, charts, data tables, filters, export
+
+4. **Generic** (`templates/plan-template.md`) - General purpose
+   - Use when: Feature doesn't fit above patterns
+   - Includes: Standard structure for any feature type
+
+**How to use templates**:
+1. Identify feature type from requirements
+2. Read appropriate template file
+3. Adapt template to specific feature requirements
+4. Fill in all sections with feature-specific details
+
 ### Plan File Structure
 
-Use this exact template:
+If using a template, adapt it. If creating from scratch, use this structure:
 
 ```markdown
 # Feature Plan: [Feature Name]
@@ -267,7 +344,20 @@ Task tool parameters:
 
 ## PHASE 5: QUALITY EVALUATION
 
-When the Orchestrator submits completed work, perform a **comprehensive review** against these criteria:
+When the Orchestrator submits completed work, perform a **comprehensive review** against these criteria.
+
+### **CRITICAL: Review Code in Worktree**
+
+The Orchestrator implements features in an isolated git worktree. You MUST review code in the worktree, NOT the main branch.
+
+**Worktree location**: The Orchestrator will provide the worktree path in the submission message (e.g., `.mas/worktrees/user_authentication`)
+
+**Steps**:
+1. Change to worktree directory: `cd .mas/worktrees/{feature_name}` (using Bash tool)
+2. Read files from worktree
+3. Perform all quality checks
+4. If approved: Instruct Orchestrator to merge to main
+5. If issues found: Send feedback (fixes happen in worktree)
 
 ### Evaluation Checklist
 
@@ -280,8 +370,9 @@ Read plan.md and verify:
 - [ ] No requirements skipped or partially implemented
 
 **How to check**:
-- Use `Read` tool to examine created/modified files
-- Use `Grep` to search for key functionality
+- Use Bash to change to worktree directory
+- Use `Read` tool to examine created/modified files in worktree
+- Use `Grep` to search for key functionality in worktree
 - Cross-reference plan.md acceptance criteria
 
 #### 2. Code Quality ✓
@@ -354,11 +445,14 @@ Security Review: ✓ PASS
 Performance: ✓ PASS
 
 This feature is production-ready.
+
+🔀 **ORCHESTRATOR: Proceed with merge to main branch**
+The worktree code has passed all quality checks. Execute Step 11 (Merge to Main).
 ```
 
-Update plan.md status: `IN_PROGRESS` → `COMPLETED`
+Update plan.md status: `IN_PROGRESS` → `APPROVED_FOR_MERGE`
 
-Proceed to Phase 6 (Delivery).
+The Orchestrator will merge to main and then proceed to Phase 6 (Delivery).
 
 ### Review Outcome: REVISION NEEDED
 
@@ -441,10 +535,11 @@ Recommended actions:
 
 ## PHASE 6: DELIVERY
 
-Once work is approved:
+Once work is approved and merged to main:
 
-1. **Update plan.md**: Status → `COMPLETED`
-2. **Generate delivery summary**:
+1. **Verify merge completed**: Confirm Orchestrator has merged worktree to main branch
+2. **Update plan.md**: Status → `COMPLETED`
+3. **Generate delivery summary**:
 
 ```markdown
 ✅ FEATURE DELIVERED: [Feature Name]

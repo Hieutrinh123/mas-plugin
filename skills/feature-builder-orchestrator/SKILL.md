@@ -152,6 +152,64 @@ Each task should be:
 
 ---
 
+## STEP 3.5: Create Worktree for Isolated Implementation
+
+Before spawning agents, create a git worktree to isolate the implementation from the main branch.
+
+### Worktree Setup
+
+**Step 1: Generate feature branch name**
+
+Convert the feature name to a valid git branch name:
+```
+Feature: "User Authentication System"
+Branch: feature/user-authentication-system
+```
+
+**Step 2: Create worktree**
+
+```bash
+git worktree add .mas/worktrees/{feature_name} -b feature/{feature_name}
+```
+
+Example:
+```bash
+git worktree add .mas/worktrees/user_authentication -b feature/user-authentication
+```
+
+**Step 3: Change working directory to worktree**
+
+All agent spawning and implementation happens within the worktree:
+```bash
+cd .mas/worktrees/{feature_name}
+```
+
+### Worktree Benefits
+
+- ✓ **Isolation**: Implementation doesn't pollute main branch
+- ✓ **Safe experimentation**: Can abandon worktree if needed
+- ✓ **Clean history**: Only approved code merges to main
+- ✓ **Parallel features**: Multiple features can be developed simultaneously in different worktrees
+
+### Error Handling
+
+If worktree creation fails (e.g., branch already exists):
+```bash
+# Clean up existing worktree and recreate
+git worktree remove .mas/worktrees/{feature_name} --force
+git branch -D feature/{feature_name}
+git worktree add .mas/worktrees/{feature_name} -b feature/{feature_name}
+```
+
+### Important Notes
+
+- All file paths in agent instructions must be relative to worktree root
+- Evaluator will review code in worktree (not main branch)
+- Only merge to main after Evaluator approval
+- Cleanup worktree after successful merge
+
+---
+
 ## STEP 4: Create Dependency Graph
 
 Some tasks must happen **sequentially**, others can run **in parallel**.
@@ -203,7 +261,14 @@ Based on dependencies, create phases:
 
 ## STEP 5: Spawn Required Agents
 
-Use the `Task` tool to spawn agents dynamically.
+Use the `Task` tool to spawn agents dynamically. **All agents work within the worktree.**
+
+### Important: Worktree Context
+
+Before spawning agents, ensure you have:
+1. Created the worktree (Step 3.5)
+2. Changed directory to worktree: `cd .mas/worktrees/{feature_name}`
+3. All subsequent file operations happen in worktree
 
 ### Spawning the Backend Agent
 
@@ -212,7 +277,9 @@ Task tool parameters:
 - subagent_type: "general-purpose"
 - model: "sonnet"
 - description: "Backend implementation"
-- prompt: "Load the agent definition from agents/backend-developer.md and implement these tasks from the approved plan at .mas/plans/{filename}_plan.md:
+- prompt: "You are working in a git worktree at .mas/worktrees/{feature_name}. All file paths are relative to the worktree root.
+
+Load the agent definition from agents/backend-developer.md and implement these tasks from the approved plan at .mas/plans/{filename}_plan.md:
 
 [Paste specific tasks for Backend Agent]
 
@@ -228,7 +295,9 @@ Task tool parameters:
 - subagent_type: "general-purpose"
 - model: "sonnet"
 - description: "Frontend implementation"
-- prompt: "Load the agent definition from agents/frontend-developer.md and implement these tasks from the approved plan at .mas/plans/{filename}_plan.md:
+- prompt: "You are working in a git worktree at .mas/worktrees/{feature_name}. All file paths are relative to the worktree root.
+
+Load the agent definition from agents/frontend-developer.md and implement these tasks from the approved plan at .mas/plans/{filename}_plan.md:
 
 [Paste specific tasks for Frontend Agent]
 
@@ -245,7 +314,9 @@ Task tool parameters:
 - subagent_type: "general-purpose"
 - model: "sonnet"
 - description: "Test implementation"
-- prompt: "Load the agent definition from agents/testing-specialist.md and create tests for the feature described in .mas/plans/{filename}_plan.md.
+- prompt: "You are working in a git worktree at .mas/worktrees/{feature_name}. All file paths are relative to the worktree root.
+
+Load the agent definition from agents/testing-specialist.md and create tests for the feature described in .mas/plans/{filename}_plan.md.
 
 Focus on:
 [List what needs testing based on plan]
@@ -284,6 +355,49 @@ Each agent will report back when complete. Track:
 - ⏳ Which are in progress
 - ❌ Any errors/failures
 
+### Provide Real-Time Progress Updates
+
+As agents work, update the user with a visual progress dashboard showing parallel execution status.
+
+**Progress Update Format**:
+
+```markdown
+🔧 IMPLEMENTATION IN PROGRESS
+
+Backend Agent:    [████████░░] 80% (4/5 tasks completed)
+  ✓ User model created (src/models/User.ts)
+  ✓ Session middleware implemented (src/middleware/session.ts)
+  ✓ Register endpoint created (src/api/auth/register.ts)
+  ✓ Login endpoint created (src/api/auth/login.ts)
+  ⏳ Password reset endpoint (in progress)
+
+Frontend Agent:   [██████████] 100% (3/3 tasks completed)
+  ✓ LoginForm component (src/components/LoginForm.tsx)
+  ✓ RegisterForm component (src/components/RegisterForm.tsx)
+  ✓ Auth context (src/contexts/AuthContext.tsx)
+
+Testing Agent:    [████░░░░░░] 40% (2/5 test suites)
+  ✓ Unit tests for auth utilities (tests/utils/auth.test.ts)
+  ✓ Integration tests for login (tests/api/login.test.ts)
+  ⏳ Integration tests for registration (in progress)
+  ⏳ E2E tests (pending)
+  ⏳ Security tests (pending)
+
+Overall Progress: [███████░░░] 73% (9/13 total tasks)
+```
+
+**Update Frequency**:
+- Provide progress updates when agents complete major milestones
+- Don't spam updates for every tiny action
+- Update when an agent completes (e.g., "Backend Agent finished")
+- Update if an agent encounters blocking errors
+
+**Implementation**:
+1. Track task completion for each agent
+2. Calculate percentage based on completed vs total tasks
+3. Use Unicode block characters for progress bars: `█` (full), `░` (empty)
+4. Mark status: `✓` (done), `⏳` (in progress), `❌` (error)
+
 ### Update plan.md Status
 
 When execution begins:
@@ -292,25 +406,58 @@ Edit plan.md:
 Status: APPROVED → IN_PROGRESS
 ```
 
-Add a progress section:
+Add a progress section to plan.md:
 ```markdown
 ## Implementation Progress
 
-### Backend Agent
-- [x] User model created
-- [x] Session middleware implemented
-- [ ] Auth endpoints (in progress)
+**Last Updated**: [Timestamp]
+**Overall Status**: IN_PROGRESS (73% complete)
 
-### Frontend Agent
-- [x] LoginForm component created
-- [ ] API integration (pending backend completion)
+### Backend Agent (80% complete)
+- [x] User model created - `src/models/User.ts`
+- [x] Session middleware implemented - `src/middleware/session.ts`
+- [x] Register endpoint created - `src/api/auth/register.ts`
+- [x] Login endpoint created - `src/api/auth/login.ts`
+- [ ] Password reset endpoint (in progress)
+
+### Frontend Agent (100% complete)
+- [x] LoginForm component - `src/components/LoginForm.tsx`
+- [x] RegisterForm component - `src/components/RegisterForm.tsx`
+- [x] Auth context - `src/contexts/AuthContext.tsx`
+
+### Testing Agent (40% complete)
+- [x] Unit tests for auth utilities - `tests/utils/auth.test.ts`
+- [x] Integration tests for login - `tests/api/login.test.ts`
+- [ ] Integration tests for registration (in progress)
+- [ ] E2E tests (pending)
+- [ ] Security tests (pending)
 ```
+
+**When to update plan.md**:
+- When execution starts (status → IN_PROGRESS)
+- When each agent completes a major phase
+- When all agents complete (before submitting to Evaluator)
+- When Evaluator sends feedback (add review notes)
 
 ---
 
 ## STEP 7: Integrate Results
 
-Once all agents complete:
+Once all agents complete, provide a final progress update showing 100% completion:
+
+```markdown
+✅ IMPLEMENTATION COMPLETE
+
+Backend Agent:    [██████████] 100% (5/5 tasks completed)
+Frontend Agent:   [██████████] 100% (3/3 tasks completed)
+Testing Agent:    [██████████] 100% (5/5 test suites completed)
+
+Overall Progress: [██████████] 100% (13/13 total tasks)
+
+All agents have finished their work. Beginning integration verification...
+```
+
+Then verify integration:
 
 1. **Verify integration points**:
    - Do frontend API calls match backend endpoints?
@@ -330,13 +477,18 @@ Once all agents complete:
 
 ## STEP 8: Submit to Evaluator for Review
 
-Package the completed work and report to the Evaluator:
+Package the completed work and report to the Evaluator. **Important**: The Evaluator will review code in the worktree, NOT main branch.
 
 ```markdown
 IMPLEMENTATION COMPLETE - READY FOR REVIEW
 
 Feature: [Feature name from plan.md]
 Plan: .mas/plans/{filename}_plan.md
+Worktree: .mas/worktrees/{feature_name}
+Branch: feature/{feature_name}
+
+⚠️ **Evaluator: Review code in worktree, not main branch**
+All implementation happened in: .mas/worktrees/{feature_name}
 
 ## Agents Executed
 - Backend Agent: ✓ Completed
@@ -345,7 +497,7 @@ Plan: .mas/plans/{filename}_plan.md
 
 ## Deliverables
 
-### Files Created
+### Files Created (in worktree)
 - src/models/User.ts (Backend: User model with password hashing)
 - src/middleware/session.ts (Backend: Session management)
 - src/api/auth/register/route.ts (Backend: Registration endpoint)
@@ -354,7 +506,7 @@ Plan: .mas/plans/{filename}_plan.md
 - src/components/RegisterForm.tsx (Frontend: Registration UI)
 - src/tests/auth.integration.test.ts (Testing: Auth flow tests)
 
-### Files Modified
+### Files Modified (in worktree)
 - src/app/api/route.ts (Added session middleware)
 - package.json (Added bcrypt, express-session)
 
@@ -508,6 +660,84 @@ Ready for Evaluator re-review.
 Continue the review → fix → re-review cycle until:
 - ✓ Evaluator approves (status: "approved")
 - ❌ Max iterations reached (escalate to human)
+
+---
+
+## STEP 11: Merge to Main Branch (After Evaluator Approval)
+
+Once the Evaluator approves the implementation, merge the worktree to main branch.
+
+### Merge Workflow
+
+**Step 1: Return to main repository**
+
+```bash
+# Exit worktree and return to main repo
+cd /path/to/main/repo
+```
+
+**Step 2: Merge feature branch**
+
+```bash
+# Ensure main is up to date
+git checkout main
+git pull origin main
+
+# Merge feature branch
+git merge feature/{feature_name} --no-ff -m "feat: [Feature name]
+
+[Brief description from plan.md]
+
+Plan: .mas/plans/{filename}_plan.md
+Reviewed and approved by Evaluator (Opus 4.5)
+"
+```
+
+**Step 3: Cleanup worktree**
+
+```bash
+# Remove worktree
+git worktree remove .mas/worktrees/{feature_name}
+
+# Delete feature branch (optional, if you don't need to push it)
+git branch -d feature/{feature_name}
+```
+
+**Step 4: Notify completion**
+
+```markdown
+✅ FEATURE MERGED TO MAIN
+
+Feature: [Feature name]
+Branch: feature/{feature_name} → main
+Worktree: Cleaned up
+
+The feature is now integrated into the main branch.
+```
+
+### Merge Conflict Resolution
+
+If merge conflicts occur:
+
+```bash
+# Attempt merge
+git merge feature/{feature_name}
+
+# If conflicts:
+git status  # See conflicting files
+
+# Resolve conflicts manually or ask Evaluator for guidance
+# Then:
+git add .
+git commit -m "feat: [Feature name] (resolved conflicts)"
+```
+
+### When NOT to Merge
+
+DO NOT merge if:
+- Evaluator has not approved (status != "approved")
+- Max iterations reached and issues persist
+- Human intervention is needed
 
 ---
 

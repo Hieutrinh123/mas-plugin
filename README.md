@@ -39,23 +39,40 @@ Feature Builder implements an **Evaluator-Orchestrator** pattern where strategic
 
 ### 🎯 Strategic Planning
 - **Requirements Gathering**: Evaluator uses interactive questions to clarify ambiguous requirements
+- **Industry Research**: Optional Research agent discovers best practices and common pitfalls
+- **Plan Templates**: Specialized templates for CRUD APIs, Authentication, Dashboards
 - **Comprehensive Plans**: Detailed plan files serve as single source of truth
 - **Human-in-the-Loop**: Explicit approval required before implementation begins
 
 ### 🤖 Dynamic Agent Spawning
-- **Smart Selection**: Orchestrator spawns only the agents needed (Backend, Frontend, Testing)
+- **Smart Selection**: Orchestrator spawns only the agents needed (Backend, Frontend, Testing, Research)
 - **Cost Efficient**: Don't spawn 3 agents when 1 will do
 - **Parallel Execution**: Independent agents run simultaneously
+- **Real-Time Progress**: Visual progress bars show completion status for each agent
+
+### 🔐 Worktree Isolation
+- **Safe Experimentation**: All implementation happens in isolated git worktrees
+- **Protected Main Branch**: Only Evaluator-approved code merges to main
+- **Clean History**: Failed attempts don't pollute git history
+- **Easy Rollback**: Simply delete worktree to discard changes
 
 ### ✅ Quality Assurance
 - **5 Evaluation Criteria**: Requirements compliance, code quality, clean code, security, performance
-- **Feedback Loop**: Iterative fixes until quality standards met (max 3 iterations)
-- **Human Escalation**: Persistent issues escalate to user after 3 failed attempts
+- **Feedback Loop**: Iterative fixes until quality standards met (max 5 iterations)
+- **Worktree Review**: Evaluator reviews in isolation before merge
+- **Human Escalation**: Persistent issues escalate to user after failed attempts
+
+### 🔀 Flexible Workflows
+- **Full Workflow**: `/feature-builder` - Complete feature development
+- **Plan Only**: `/feature-builder:plan` - Create strategic plan without implementation
+- **Review Only**: `/feature-builder:review` - Quality evaluation of existing code
+- **Test Only**: `/feature-builder:test` - Generate tests for existing code
 
 ### 🔒 Production-Ready Code
 - **Security First**: Input validation, password hashing, SQL injection prevention
 - **Clean Code**: DRY principles, single responsibility, maintainability
 - **Comprehensive Testing**: Unit, integration, and E2E tests
+- **Best Practices**: Research-informed implementation based on 2026 standards
 
 ---
 
@@ -95,7 +112,7 @@ claude
 
 ## Quick Start
 
-### Your First Feature
+### Your First Feature (Full Workflow)
 
 1. **Invoke the plugin**:
 ```
@@ -118,13 +135,40 @@ Change the email service from SendGrid to Resend
 ```
 
 5. **Implementation begins**:
-The Orchestrator will spawn the necessary agents (Backend, Frontend, Testing) and coordinate implementation.
+The Orchestrator creates a git worktree and spawns necessary agents (Backend, Frontend, Testing). You'll see real-time progress:
+```
+🔧 IMPLEMENTATION IN PROGRESS
+
+Backend Agent:    [████████░░] 80% (4/5 tasks)
+Frontend Agent:   [██████████] 100% (3/3 tasks)
+Testing Agent:    [████░░░░░░] 40% (2/5 test suites)
+```
 
 6. **Quality review**:
-The Evaluator reviews all code against 5 criteria and either approves or requests fixes.
+The Evaluator reviews code in the worktree against 5 criteria and either approves or requests fixes (max 5 iterations).
 
-7. **Delivery**:
+7. **Merge to main**:
+On approval, the Orchestrator merges the worktree to main branch.
+
+8. **Delivery**:
 You receive production-ready code with comprehensive tests!
+
+### Partial Workflows
+
+**Create a Plan Only** (no implementation):
+```
+/feature-builder:plan Design a user authentication system
+```
+
+**Review Existing Code**:
+```
+/feature-builder:review Review the authentication code in src/auth/
+```
+
+**Generate Tests Only**:
+```
+/feature-builder:test Generate tests for src/api/users.ts
+```
 
 ---
 
@@ -134,33 +178,46 @@ You receive production-ready code with comprehensive tests!
 The Evaluator (Opus 4.5) uses interactive questions to build a complete understanding of what you want.
 
 ### Phase 2: Strategic Planning
-A comprehensive plan is created covering:
+The Evaluator creates a comprehensive plan covering:
 - Functional and non-functional requirements
 - Technical approach with rationale
 - Implementation phases
 - Risk assessment
 - Acceptance criteria
 
+**Optional Research**: For complex features, the Evaluator may spawn a Research agent to discover industry best practices, common pitfalls, and proven patterns (using WebSearch for current 2026 standards).
+
+**Plan Templates**: For common patterns (CRUD APIs, Authentication, Dashboards), the Evaluator uses specialized templates that provide better structure and completeness.
+
 ### Phase 3: Human Review (BLOCKING)
 **Nothing is implemented until you approve the plan.** This is your chance to steer the implementation.
 
-### Phase 4: Implementation
-The Orchestrator (Sonnet) spawns specialized agents dynamically:
-- **Backend Agent**: API endpoints, database models, business logic
-- **Frontend Agent**: UI components, styling, state management
-- **Testing Agent**: Unit, integration, and E2E tests
+### Phase 4: Implementation (Worktree Isolation)
+The Orchestrator:
+1. Creates a git worktree: `.mas/worktrees/{feature_name}`
+2. Spawns specialized agents dynamically in the worktree:
+   - **Backend Agent**: API endpoints, database models, business logic
+   - **Frontend Agent**: UI components, styling, state management
+   - **Testing Agent**: Unit, integration, and E2E tests
+3. Provides real-time progress updates with visual progress bars
+4. Agents run in parallel where possible, respecting dependencies
 
-Agents run in parallel where possible, respecting dependencies.
+**Benefit**: All implementation happens in isolation. Your main branch stays clean.
 
-### Phase 5: Quality Evaluation
-The Evaluator reviews completed code against:
+### Phase 5: Quality Evaluation (In Worktree)
+The Evaluator reviews code **in the worktree** (not main branch) against:
 1. ✓ Requirements Compliance
 2. ✓ Code Quality
 3. ✓ Clean Code Standards
 4. ✓ Security Review
 5. ✓ Performance
 
-If issues are found, structured feedback is sent to the Orchestrator, who re-spawns affected agents with fix instructions. Max 3 iterations, then escalates to human.
+If issues are found, structured feedback is sent to the Orchestrator, who re-spawns affected agents with fix instructions. Max 5 iterations, then escalates to human.
+
+### Phase 6: Merge to Main
+**Only on Evaluator approval**, the Orchestrator merges the worktree to main branch and cleans up the worktree.
+
+**Benefit**: Main branch only receives quality-approved code.
 
 ### Phase 6: Delivery
 Once approved, you receive:
@@ -271,6 +328,123 @@ Feature Builder uses a **hybrid architecture** to prevent cross-contamination be
 - Integration tests (20%)
 - E2E tests (10%)
 - Coverage reporting
+
+**Research Agent (Sonnet)** - Best Practices Discovery
+- Web search for current best practices (2026)
+- Analyze common pitfalls and vulnerabilities
+- Provide evidence-based recommendations
+- Cite authoritative sources (OWASP, official docs, etc.)
+
+---
+
+## Available Commands
+
+### Full Workflow
+**`/feature-builder [description]`** - Complete feature development lifecycle
+- Requirements gathering → Planning → Approval → Implementation → Review → Delivery
+- Creates worktree for isolated implementation
+- Real-time progress tracking
+- Quality evaluation with up to 5 fix iterations
+- Merges to main only after Evaluator approval
+
+**Example**:
+```
+/feature-builder Create a user authentication system with email/password
+```
+
+---
+
+### Partial Workflows
+
+**`/feature-builder:plan [description]`** - Strategic planning only (no implementation)
+- Requirements gathering
+- Creates comprehensive plan at `.mas/plans/{feature_name}_plan.md`
+- Waits for human approval
+- **STOPS** after approval (does not implement)
+
+**Use when**: You want to explore a feature idea, get a plan document, or review with your team before coding.
+
+**Example**:
+```
+/feature-builder:plan Design a payment processing system with Stripe
+```
+
+---
+
+**`/feature-builder:review [scope]`** - Quality evaluation only
+- Reviews existing code using Evaluator's 5 quality criteria
+- Generates detailed feedback report
+- No implementation or fixes (report only)
+
+**Use when**: You want to evaluate existing code quality, find security issues, or get improvement recommendations.
+
+**Example**:
+```
+/feature-builder:review Review the authentication code in src/auth/
+/feature-builder:review Review src/api/users.ts
+```
+
+---
+
+**`/feature-builder:test [scope]`** - Test generation only
+- Spawns Testing Agent to create tests for existing code
+- Follows test pyramid (70% unit, 20% integration, 10% E2E)
+- No application code changes
+
+**Use when**: You have existing code that needs tests, or you want to improve test coverage.
+
+**Example**:
+```
+/feature-builder:test Generate tests for src/api/users.ts
+/feature-builder:test Add integration tests for the authentication system
+```
+
+---
+
+## Plan Templates
+
+The Evaluator uses specialized templates for common feature types:
+
+### 1. CRUD API Template (`templates/crud-api-plan-template.md`)
+**Use for**: RESTful resource endpoints (users, products, orders, etc.)
+
+**Includes**:
+- All 5 CRUD operations (Create, Read, Read All, Update, Delete)
+- Pagination, sorting, filtering
+- Input validation
+- Database schema design
+- Error handling patterns
+
+---
+
+### 2. Authentication Template (`templates/auth-plan-template.md`)
+**Use for**: User authentication systems
+
+**Includes**:
+- Registration, login, logout flows
+- Password management (hashing, reset, change)
+- Session management (server-side sessions vs JWT)
+- Email verification
+- Rate limiting and account lockout
+- OWASP security best practices
+
+---
+
+### 3. Dashboard Template (`templates/dashboard-plan-template.md`)
+**Use for**: Analytics, reporting, or admin dashboards
+
+**Includes**:
+- KPI metrics cards with change indicators
+- Chart/graph specifications
+- Data tables with sorting, filtering, pagination
+- Real-time updates
+- Export functionality
+- Mobile-responsive design
+
+---
+
+### 4. Generic Template (`templates/plan-template.md`)
+**Use for**: Features that don't fit above patterns
 
 ---
 
