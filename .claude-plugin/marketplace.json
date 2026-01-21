@@ -6,8 +6,9 @@
   "plugins": [
     {
       "name": "feature-builder",
-      "source": ".",
-      "description": "Hierarchical multiagent system for building production-ready features through coordinated specialized agents"
+      "source": "./",
+      "description": "Hierarchical multiagent system for building production-ready features through coordinated specialized agents",
+      "version": "1.0.0"
     }
   ]
 }
