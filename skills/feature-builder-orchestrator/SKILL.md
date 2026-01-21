@@ -414,48 +414,81 @@ Each agent will report back when complete. Track:
 - ⏳ Which are in progress
 - ❌ Any errors/failures
 
-### Provide Real-Time Progress Updates
+### CRITICAL: Use TodoWrite for Real-Time Progress Tracking
 
-As agents work, update the user with a visual progress dashboard showing parallel execution status.
+**Before spawning agents**, create a todo list with all tasks using the `TodoWrite` tool. This makes progress visible in the CLI.
 
-**Progress Update Format**:
+**Step 1: Initialize todo list before spawning agents**
 
-```markdown
-🔧 IMPLEMENTATION IN PROGRESS
-
-Backend Agent:    [████████░░] 80% (4/5 tasks completed)
-  ✓ User model created (src/models/User.ts)
-  ✓ Session middleware implemented (src/middleware/session.ts)
-  ✓ Register endpoint created (src/api/auth/register.ts)
-  ✓ Login endpoint created (src/api/auth/login.ts)
-  ⏳ Password reset endpoint (in progress)
-
-Frontend Agent:   [██████████] 100% (3/3 tasks completed)
-  ✓ LoginForm component (src/components/LoginForm.tsx)
-  ✓ RegisterForm component (src/components/RegisterForm.tsx)
-  ✓ Auth context (src/contexts/AuthContext.tsx)
-
-Testing Agent:    [████░░░░░░] 40% (2/5 test suites)
-  ✓ Unit tests for auth utilities (tests/utils/auth.test.ts)
-  ✓ Integration tests for login (tests/api/login.test.ts)
-  ⏳ Integration tests for registration (in progress)
-  ⏳ E2E tests (pending)
-  ⏳ Security tests (pending)
-
-Overall Progress: [███████░░░] 73% (9/13 total tasks)
+```json
+{
+  "todos": [
+    {"content": "Backend: Create User model", "status": "pending", "activeForm": "Creating User model"},
+    {"content": "Backend: Create session middleware", "status": "pending", "activeForm": "Creating session middleware"},
+    {"content": "Backend: Create API endpoints", "status": "pending", "activeForm": "Creating API endpoints"},
+    {"content": "Frontend: Create LoginForm component", "status": "pending", "activeForm": "Creating LoginForm component"},
+    {"content": "Frontend: Create RegisterForm component", "status": "pending", "activeForm": "Creating RegisterForm component"},
+    {"content": "Frontend: Create auth context", "status": "pending", "activeForm": "Creating auth context"},
+    {"content": "Testing: Write integration tests", "status": "pending", "activeForm": "Writing integration tests"}
+  ]
+}
 ```
 
+**Step 2: Track agent spawning**
+
+When spawning an agent, mark its first task as `in_progress`:
+
+```json
+{
+  "todos": [
+    {"content": "Backend: Create User model", "status": "in_progress", "activeForm": "Creating User model"},
+    {"content": "Backend: Create session middleware", "status": "pending", "activeForm": "Creating session middleware"},
+    ...
+  ]
+}
+```
+
+**Step 3: Update as agents report completion**
+
+When an agent reports completing a task, mark it as `completed` and move to the next task:
+
+```json
+{
+  "todos": [
+    {"content": "Backend: Create User model", "status": "completed", "activeForm": "Creating User model"},
+    {"content": "Backend: Create session middleware", "status": "in_progress", "activeForm": "Creating session middleware"},
+    ...
+  ]
+}
+```
+
+**Step 4: Provide periodic progress summaries**
+
+In addition to TodoWrite updates, provide text summaries to keep the user informed:
+
+```markdown
+🔧 IMPLEMENTATION UPDATE
+
+Backend Agent: Working on session middleware (task 2/5)
+Frontend Agent: Completed LoginForm, starting RegisterForm (task 2/3)
+Testing Agent: Not yet started (pending backend completion)
+
+Next checkpoint in 30 seconds...
+```
+
+### Provide Real-Time Progress Updates
+
 **Update Frequency**:
-- Provide progress updates when agents complete major milestones
-- Don't spam updates for every tiny action
+- Use TodoWrite immediately when an agent starts/completes a task
+- Provide text progress summaries every 30-60 seconds during active work
 - Update when an agent completes (e.g., "Backend Agent finished")
 - Update if an agent encounters blocking errors
 
 **Implementation**:
-1. Track task completion for each agent
-2. Calculate percentage based on completed vs total tasks
-3. Use Unicode block characters for progress bars: `█` (full), `░` (empty)
-4. Mark status: `✓` (done), `⏳` (in progress), `❌` (error)
+1. Initialize TodoWrite with all tasks before spawning agents
+2. Update TodoWrite as agents report progress
+3. Mark tasks as completed when agents finish
+4. Calculate percentage based on TodoWrite status
 
 ### Update plan.md Status
 
@@ -536,18 +569,40 @@ Then verify integration:
 
 ## STEP 8: Submit to Evaluator for Review
 
-Package the completed work and report to the Evaluator. **Important**: The Evaluator will review code in the worktree, NOT main branch.
+Package the completed work and signal the Evaluator to begin Phase 5 (Quality Review).
+
+**CRITICAL**: You must explicitly notify the user that implementation is complete and that Phase 5 (Evaluator quality review) will now begin. The Evaluator will review code in the worktree, NOT main branch.
+
+### Step 8.1: Mark all todos as completed
+
+Use TodoWrite to mark all implementation tasks as completed:
+
+```json
+{
+  "todos": [
+    {"content": "Backend: Create User model", "status": "completed", "activeForm": "Creating User model"},
+    {"content": "Backend: Create session middleware", "status": "completed", "activeForm": "Creating session middleware"},
+    {"content": "Backend: Create API endpoints", "status": "completed", "activeForm": "Creating API endpoints"},
+    {"content": "Frontend: Create LoginForm component", "status": "completed", "activeForm": "Creating LoginForm component"},
+    {"content": "Frontend: Create RegisterForm component", "status": "completed", "activeForm": "Creating RegisterForm component"},
+    {"content": "Frontend: Create auth context", "status": "completed", "activeForm": "Creating auth context"},
+    {"content": "Testing: Write integration tests", "status": "completed", "activeForm": "Writing integration tests"}
+  ]
+}
+```
+
+### Step 8.2: Provide completion summary to user
+
+Output a clear completion message:
 
 ```markdown
-IMPLEMENTATION COMPLETE - READY FOR REVIEW
+✅ IMPLEMENTATION COMPLETE
+
+All agents have finished their work in the worktree!
 
 Feature: [Feature name from plan.md]
-Plan: .mas/plans/{filename}_plan.md
 Worktree: .mas/worktrees/{feature_name}
 Branch: feature/{feature_name}
-
-⚠️ **Evaluator: Review code in worktree, not main branch**
-All implementation happened in: .mas/worktrees/{feature_name}
 
 ## Agents Executed
 - Backend Agent: ✓ Completed
@@ -571,7 +626,7 @@ All implementation happened in: .mas/worktrees/{feature_name}
 
 ## Implementation Summary
 
-All tasks from plan.md phases 1-3 completed:
+All tasks from plan.md completed:
 ✓ Backend Foundation (Phase 1)
 ✓ API Endpoints (Phase 2)
 ✓ Frontend Components (Phase 3)
@@ -583,8 +638,57 @@ All acceptance criteria from plan.md addressed:
 ✓ Sessions persist across refresh
 ✓ Logout clears session
 
-Ready for Evaluator quality review.
+---
+
+🔄 **PHASE 5: QUALITY REVIEW NOW STARTING**
+
+The Evaluator will now review the implementation in the worktree against 5 quality criteria:
+1. Requirements Compliance
+2. Code Quality
+3. Clean Code Standards
+4. Security Review
+5. Performance
+
+This may take a few moments...
 ```
+
+### Step 8.3: Trigger Phase 5 via Evaluator Spawn
+
+**CRITICAL**: After implementation is complete, you must explicitly spawn the Evaluator agent to begin Phase 5 (Quality Evaluation).
+
+**Spawn the Evaluator for Phase 5**:
+
+```
+Task tool parameters:
+- subagent_type: "general-purpose"
+- model: "opus"
+- description: "Phase 5: Quality Evaluation"
+- prompt: "You are the Evaluator agent performing Phase 5 (Quality Evaluation).
+
+CRITICAL: First, use the Read tool to load `${CLAUDE_PLUGIN_ROOT}/skills/feature-builder-evaluator/SKILL.md`. This contains your complete evaluation workflow.
+
+CONTEXT:
+The Orchestrator has completed implementation in the worktree. You must now perform Phase 5 (Quality Evaluation).
+
+Worktree Path: .mas/worktrees/{feature_name}
+Plan File: .mas/plans/{filename}_plan.md
+Branch: feature/{feature_name}
+
+INSTRUCTIONS:
+1. Change to the worktree directory: cd .mas/worktrees/{feature_name}
+2. Follow the Phase 5 instructions in your SKILL.md file
+3. Review code in the worktree against 5 quality criteria
+4. If approved: Instruct the Orchestrator to merge to main (spawn it back)
+5. If issues found: Provide feedback to the Orchestrator for fixes
+
+Begin Phase 5 Quality Evaluation now."
+```
+
+**After spawning the Evaluator**:
+- Your job is complete for now
+- The Evaluator will review the code
+- If the Evaluator finds issues, it will spawn you again with fix instructions
+- If approved, the Evaluator will spawn you to merge to main
 
 ---
 
@@ -693,23 +797,58 @@ After 3 fix attempts, these issues persist:
 Recommending human intervention. The Evaluator will contact the user.
 ```
 
-**Step 5: Re-submit for Review**
+**Step 5: Announce fixes complete**
 
-After fixes, submit to Evaluator again:
+After fixes are applied, announce to the user:
 
 ```markdown
-FIXES APPLIED - READY FOR RE-REVIEW (Iteration 2)
+✅ FIXES APPLIED (Iteration 2)
 
 Issues addressed:
 ✓ [SEC-001] Password comparison fixed - now using bcrypt.compare()
 ✓ [QUAL-002] Validation extracted into useFormValidation hook
 
-Files modified:
+Files modified in worktree:
 - src/api/auth/login.ts (fixed password verification)
 - src/components/LoginForm.tsx (extracted validation hook)
 - src/hooks/useFormValidation.ts (new shared hook)
 
-Ready for Evaluator re-review.
+🔄 Spawning Evaluator for re-review...
+```
+
+**Step 6: Spawn Evaluator for re-review**
+
+After fixes are complete, spawn the Evaluator to perform Phase 5 again:
+
+```
+Task tool parameters:
+- subagent_type: "general-purpose"
+- model: "opus"
+- description: "Phase 5: Re-review (Iteration 2)"
+- prompt: "You are the Evaluator agent performing Phase 5 (Quality Re-Evaluation).
+
+CRITICAL: First, use the Read tool to load `${CLAUDE_PLUGIN_ROOT}/skills/feature-builder-evaluator/SKILL.md`.
+
+CONTEXT:
+The Orchestrator has applied fixes based on your feedback. You must now re-review the code in the worktree.
+
+Worktree Path: .mas/worktrees/{feature_name}
+Plan File: .mas/plans/{filename}_plan.md
+Branch: feature/{feature_name}
+Iteration: 2 (of max 3)
+
+PREVIOUS ISSUES FIXED:
+{list the issues that were addressed}
+
+INSTRUCTIONS:
+1. Change to the worktree directory: cd .mas/worktrees/{feature_name}
+2. Follow the Phase 5 instructions in your SKILL.md file
+3. Review code focusing on the previously identified issues
+4. Also check that fixes didn't introduce new problems
+5. If approved: Spawn Orchestrator to merge to main
+6. If issues persist or new issues found: Send feedback again (track iteration count)
+
+Begin Phase 5 Re-Evaluation now."
 ```
 
 ---

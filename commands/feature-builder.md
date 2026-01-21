@@ -57,7 +57,9 @@ Task tool:
 
 CRITICAL: First, use the Read tool to load and read the file at `${CLAUDE_PLUGIN_ROOT}/skills/feature-builder-evaluator/SKILL.md`. This file contains your complete workflow, responsibilities, plan templates, and quality evaluation criteria. Follow ALL instructions in that file.
 
-User Request: $ARGUMENTS"
+User Request: $ARGUMENTS
+
+IMPORTANT: Your first action MUST be to use the AskUserQuestion tool to gather requirements interactively with multiple-choice questions. Do NOT skip Phase 1 (Requirements Gathering). Review the example workflow in your SKILL.md file to see how to properly use AskUserQuestion with structured options."
 ```
 
 The user's feature request is available in the $ARGUMENTS variable. The `${CLAUDE_PLUGIN_ROOT}` variable resolves to the plugin's installation directory, ensuring the skill file is found regardless of where the user runs the command.
